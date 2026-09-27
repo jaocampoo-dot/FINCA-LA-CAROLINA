@@ -38,21 +38,29 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
-      background: linear-gradient(135deg, #174d2a, #6a9d55);
+      background-image: url("https://img.magnific.com/fotos-premium/trabajadores-finca-cafetera-cosechando-paisaje-montanoso_890859-69533.jpg?semt=ais_hybrid&w=740&q=80");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
+.login-tarjeta {
+    width: 100%;
+    max-width: 400px;
 
-    .login-tarjeta {
-      width: 100%;
-      max-width: 400px;
-      background: white;
-      padding: 35px;
-      border-radius: 18px;
-      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
-      text-align: center;
-    }
+    background: rgba(255, 255, 255, 0.82);
 
+    padding: 35px;
+    border-radius: 18px;
+
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+
+    text-align: center;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
     .login-tarjeta h1 {
-      color: #174d2a;
+      color: #000301;
     }
 
     .encabezado {
@@ -72,8 +80,8 @@
     }
 
     .boton-salir {
-      background: #b83232;
-      color: white;
+      background: #fdfcfc;
+      color: rgb(12, 0, 0);
       border: none;
       padding: 10px 15px;
       border-radius: 8px;
@@ -86,7 +94,10 @@
 
     .menu {
       width: 245px;
-      background: white;
+      background-image: url("https://img.magnific.com/fotos-premium/trabajadores-finca-cafetera-cosechando-paisaje-montanoso_890859-69533.jpg?semt=ais_hybrid&w=740&q=80");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       padding: 20px 12px;
       border-right: 1px solid #dce5dd;
     }
@@ -547,10 +558,6 @@
                 📤 Restaurar Respaldo (CSV)
               </button>
 
-              <button class="boton boton-rojo" onclick="borrarTodosLosMovimientos()">
-                Borrar todos
-              </button>
-            </div>
           </div>
         </section>
 
@@ -1122,9 +1129,7 @@
 
       if (producto === "huevos") {
         calidad.innerHTML = `
-          <option value="A">Tipo A</option>
-          <option value="AA">Tipo AA</option>
-          <option value="AAA">Tipo AAA</option>
+          <option value=" general">Producción general</option>
         `;
         unidad.innerHTML = `
           <option value="unidades">Unidades de huevo</option>
