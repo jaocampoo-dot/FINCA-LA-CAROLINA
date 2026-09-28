@@ -335,6 +335,25 @@
       padding: 8px 10px;
     }
 
+    .boton-editar {
+      background: #1565c0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .boton-editar:hover {
+      background: #0d47a1;
+    }
+
+    .acciones-registro {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .sin-datos {
       color: #68756c;
       padding: 15px 0;
@@ -536,7 +555,8 @@
 
               <div class="campo">
                 <label>&nbsp;</label>
-                <button class="boton" type="submit">Guardar movimiento</button>
+                <button id="botonGuardarMovimiento" class="boton" type="submit">Guardar movimiento</button>
+                <button id="botonCancelarMovimiento" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionMovimiento()">Cancelar edición</button>
               </div>
             </form>
 
@@ -556,6 +576,16 @@
               
               <button class="boton" onclick="document.getElementById('inputCSV').click()">
                 📤 Restaurar Respaldo (CSV)
+              </button>
+
+              <button class="boton boton-azul" onclick="descargarRespaldoCompleto()">
+                💾 Descargar respaldo completo
+              </button>
+
+              <input type="file" id="inputRespaldoCompleto" accept=".json" class="oculto" onchange="restaurarRespaldoCompleto(event)">
+
+              <button class="boton" onclick="document.getElementById('inputRespaldoCompleto').click()">
+                ♻️ Restaurar respaldo completo
               </button>
 
           </div>
@@ -615,7 +645,8 @@
               </div>
 
               <div class="campo">
-                <button class="boton" type="submit">Guardar producción</button>
+                <button id="botonGuardarProduccion" class="boton" type="submit">Guardar producción</button>
+                <button id="botonCancelarProduccion" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionProduccion()">Cancelar edición</button>
               </div>
             </form>
 
@@ -691,7 +722,8 @@
               </div>
 
               <div class="campo">
-                <button class="boton" type="submit">Guardar inventario</button>
+                <button id="botonGuardarInventario" class="boton" type="submit">Guardar inventario</button>
+                <button id="botonCancelarInventario" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionInventario()">Cancelar edición</button>
               </div>
             </form>
 
@@ -726,7 +758,8 @@
               </div>
 
               <div class="campo">
-                <button class="boton" type="submit">Guardar nota</button>
+                <button id="botonGuardarNota" class="boton" type="submit">Guardar nota</button>
+                <button id="botonCancelarNota" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionNota()">Cancelar edición</button>
               </div>
             </form>
 
@@ -783,6 +816,12 @@
     let produccion = JSON.parse(localStorage.getItem("produccionFinca")) || [];
     let inventario = JSON.parse(localStorage.getItem("inventarioFinca")) || [];
     let notas = JSON.parse(localStorage.getItem("notasFinca")) || [];
+
+    // IDs de los registros que se están editando.
+    let idMovimientoEditando = null;
+    let idProduccionEditando = null;
+    let idInventarioEditando = null;
+    let idNotaEditando = null;
 
     function formatoPesos(valor) {
       return new Intl.NumberFormat("es-CO", {
@@ -871,6 +910,30 @@
         return;
       }
 
+      if (idMovimientoEditando !== null) {
+        const indice = movimientos.findIndex(function(item) {
+          return item.id === idMovimientoEditando;
+        });
+
+        if (indice !== -1) {
+          movimientos[indice] = {
+            id: idMovimientoEditando,
+            tipo: tipo,
+            categoria: categoria,
+            fecha: fecha,
+            descripcion: descripcion,
+            monto: monto
+          };
+        }
+
+        guardarMovimientos();
+        cancelarEdicionMovimiento();
+        mensaje.textContent = "Movimiento actualizado correctamente.";
+        mensaje.className = "mensaje exito";
+        actualizarTodo();
+        return;
+      }
+
       movimientos.push({
         id: Date.now(),
         tipo: tipo,
@@ -889,6 +952,34 @@
       mensaje.className = "mensaje exito";
 
       actualizarTodo();
+    }
+
+    function editarMovimiento(id) {
+      const movimiento = movimientos.find(function(item) {
+        return item.id === id;
+      });
+      if (!movimiento) return;
+
+      idMovimientoEditando = id;
+      document.getElementById("tipo").value = movimiento.tipo;
+      document.getElementById("categoriaMovimiento").value = movimiento.categoria || "otro";
+      document.getElementById("fecha").value = movimiento.fecha;
+      document.getElementById("descripcion").value = movimiento.descripcion || "";
+      document.getElementById("monto").value = movimiento.monto;
+      document.getElementById("botonGuardarMovimiento").textContent = "Guardar cambios";
+      document.getElementById("botonCancelarMovimiento").classList.remove("oculto");
+      document.getElementById("mensajeMovimiento").textContent = "Editando este movimiento.";
+      document.getElementById("mensajeMovimiento").className = "mensaje";
+      document.getElementById("descripcion").focus();
+    }
+
+    function cancelarEdicionMovimiento() {
+      idMovimientoEditando = null;
+      document.getElementById("botonGuardarMovimiento").textContent = "Guardar movimiento";
+      document.getElementById("botonCancelarMovimiento").classList.add("oculto");
+      document.getElementById("descripcion").value = "";
+      document.getElementById("monto").value = "";
+      document.getElementById("fecha").value = fechaDeHoy();
     }
 
     function actualizarResumen() {
@@ -931,9 +1022,10 @@
             </p>
           </div>
 
-          <button class="boton-eliminar" onclick="eliminarMovimiento(${movimiento.id})">
-            Eliminar
-          </button>
+          <div class="acciones-registro">
+            <button class="boton-editar" onclick="editarMovimiento(${movimiento.id})">✏️ Editar</button>
+            <button class="boton-eliminar" onclick="eliminarMovimiento(${movimiento.id})">Eliminar</button>
+          </div>
         </div>
       `;
     }
@@ -1059,6 +1151,71 @@
       lector.readAsText(archivo, "UTF-8");
     }
 
+    /* RESPALDO COMPLETO */
+    function descargarRespaldoCompleto() {
+      const respaldo = {
+        version: 2,
+        fechaRespaldo: new Date().toISOString(),
+        movimientos: movimientos,
+        produccion: produccion,
+        inventario: inventario,
+        notas: notas
+      };
+
+      const contenido = JSON.stringify(respaldo, null, 2);
+      const blob = new Blob([contenido], { type: "application/json;charset=utf-8" });
+      const enlace = document.createElement("a");
+      enlace.href = URL.createObjectURL(blob);
+      enlace.download = `respaldo_completo_finca_${fechaDeHoy()}.json`;
+      document.body.appendChild(enlace);
+      enlace.click();
+      document.body.removeChild(enlace);
+      URL.revokeObjectURL(enlace.href);
+    }
+
+    function restaurarRespaldoCompleto(evento) {
+      const archivo = evento.target.files[0];
+      if (!archivo) return;
+
+      const lector = new FileReader();
+
+      lector.onload = function(e) {
+        try {
+          const respaldo = JSON.parse(e.target.result);
+
+          if (!respaldo || typeof respaldo !== "object" || !Array.isArray(respaldo.movimientos) ||
+              !Array.isArray(respaldo.produccion) || !Array.isArray(respaldo.inventario) ||
+              !Array.isArray(respaldo.notas)) {
+            throw new Error("Formato no válido");
+          }
+
+          if (!confirm("Este respaldo reemplazará los datos actuales de movimientos, producción, inventario y bitácora. ¿Deseas continuar?")) {
+            evento.target.value = "";
+            return;
+          }
+
+          movimientos = respaldo.movimientos;
+          produccion = respaldo.produccion;
+          inventario = respaldo.inventario;
+          notas = respaldo.notas;
+
+          guardarMovimientos();
+          guardarProduccion();
+          guardarInventario();
+          guardarNotas();
+          actualizarTodo();
+
+          alert("¡Respaldo completo restaurado correctamente!");
+        } catch (error) {
+          alert("No se pudo restaurar el respaldo. Verifica que sea un archivo JSON generado por esta aplicación.");
+        }
+
+        evento.target.value = "";
+      };
+
+      lector.readAsText(archivo, "UTF-8");
+    }
+
     /* BÚSQUEDA */
     function buscarPorFecha() {
       const fecha = document.getElementById("buscarFecha").value;
@@ -1129,7 +1286,7 @@
 
       if (producto === "huevos") {
         calidad.innerHTML = `
-          <option value=" general">Producción general</option>
+          <option value="general">Producción general</option>
         `;
         unidad.innerHTML = `
           <option value="unidades">Unidades de huevo</option>
@@ -1179,7 +1336,7 @@
       }[producto];
 
       const registro = {
-        id: Date.now(),
+        id: idProduccionEditando !== null ? idProduccionEditando : Date.now(),
         fecha: document.getElementById("fechaProduccion").value,
         producto: producto,
         nombre: nombre,
@@ -1195,17 +1352,61 @@
         return;
       }
 
-      produccion.push(registro);
-      guardarProduccion();
+      if (idProduccionEditando !== null) {
+        const indice = produccion.findIndex(function(item) {
+          return item.id === idProduccionEditando;
+        });
+        if (indice !== -1) produccion[indice] = registro;
+        guardarProduccion();
+        cancelarEdicionProduccion();
+        document.getElementById("mensajeProduccion").textContent = "Producción actualizada correctamente.";
+      } else {
+        produccion.push(registro);
+        guardarProduccion();
+        document.getElementById("mensajeProduccion").textContent = "Producción guardada correctamente.";
+      }
 
       document.getElementById("cantidad").value = "";
       document.getElementById("detalleProduccion").value = "";
       document.getElementById("nombreOtro").value = "";
+      document.getElementById("fechaProduccion").value = fechaDeHoy();
 
-      document.getElementById("mensajeProduccion").textContent = "Producción guardada correctamente.";
       document.getElementById("mensajeProduccion").className = "mensaje exito";
-
       actualizarProduccion();
+    }
+
+    function editarProduccion(id) {
+      const item = produccion.find(function(registro) {
+        return registro.id === id;
+      });
+      if (!item) return;
+
+      idProduccionEditando = id;
+      document.getElementById("fechaProduccion").value = item.fecha || fechaDeHoy();
+      document.getElementById("producto").value = item.producto || "platano";
+      cambiarProducto();
+      document.getElementById("calidad").value = item.calidad || document.getElementById("calidad").value;
+      document.getElementById("cantidad").value = item.cantidad;
+      document.getElementById("unidad").value = item.unidad || document.getElementById("unidad").value;
+      document.getElementById("nombreOtro").value = item.producto === "otros" ? (item.nombre || "") : "";
+      document.getElementById("detalleProduccion").value = item.detalle || "";
+      document.getElementById("botonGuardarProduccion").textContent = "Guardar cambios";
+      document.getElementById("botonCancelarProduccion").classList.remove("oculto");
+      document.getElementById("mensajeProduccion").textContent = "Editando este registro de producción.";
+      document.getElementById("mensajeProduccion").className = "mensaje";
+      document.getElementById("cantidad").focus();
+    }
+
+    function cancelarEdicionProduccion() {
+      idProduccionEditando = null;
+      document.getElementById("botonGuardarProduccion").textContent = "Guardar producción";
+      document.getElementById("botonCancelarProduccion").classList.add("oculto");
+      document.getElementById("fechaProduccion").value = fechaDeHoy();
+      document.getElementById("cantidad").value = "";
+      document.getElementById("detalleProduccion").value = "";
+      document.getElementById("nombreOtro").value = "";
+      document.getElementById("producto").value = "platano";
+      cambiarProducto();
     }
 
     function actualizarResumenProduccion() {
@@ -1248,7 +1449,10 @@
               <p><strong>Cantidad:</strong> ${item.cantidad} ${escaparHTML(item.unidad)}</p>
               <p>${escaparHTML(item.detalle || "")}</p>
             </div>
-            <button class="boton-eliminar" onclick="eliminarProduccion(${item.id})">Eliminar</button>
+            <div class="acciones-registro">
+              <button class="boton-editar" onclick="editarProduccion(${item.id})">✏️ Editar</button>
+              <button class="boton-eliminar" onclick="eliminarProduccion(${item.id})">Eliminar</button>
+            </div>
           </div>
         `;
       }).join("");
@@ -1287,7 +1491,7 @@
       evento.preventDefault();
 
       const item = {
-        id: Date.now(),
+        id: idInventarioEditando !== null ? idInventarioEditando : Date.now(),
         nombre: document.getElementById("nombreInventario").value.trim(),
         cantidad: Number(document.getElementById("cantidadInventario").value),
         unidad: document.getElementById("unidadInventario").value,
@@ -1301,17 +1505,56 @@
         return;
       }
 
-      inventario.push(item);
-      guardarInventario();
+      if (idInventarioEditando !== null) {
+        const indice = inventario.findIndex(function(registro) {
+          return registro.id === idInventarioEditando;
+        });
+        if (indice !== -1) inventario[indice] = item;
+        guardarInventario();
+        cancelarEdicionInventario();
+        document.getElementById("mensajeInventario").textContent = "Inventario actualizado correctamente.";
+      } else {
+        inventario.push(item);
+        guardarInventario();
+        document.getElementById("mensajeInventario").textContent = "Inventario guardado correctamente.";
+      }
 
       document.getElementById("nombreInventario").value = "";
       document.getElementById("cantidadInventario").value = "";
       document.getElementById("detalleInventario").value = "";
+      document.getElementById("fechaInventario").value = fechaDeHoy();
 
-      document.getElementById("mensajeInventario").textContent = "Inventario guardado correctamente.";
       document.getElementById("mensajeInventario").className = "mensaje exito";
-
       mostrarInventario();
+    }
+
+    function editarInventario(id) {
+      const item = inventario.find(function(registro) {
+        return registro.id === id;
+      });
+      if (!item) return;
+
+      idInventarioEditando = id;
+      document.getElementById("nombreInventario").value = item.nombre || "";
+      document.getElementById("cantidadInventario").value = item.cantidad;
+      document.getElementById("unidadInventario").value = item.unidad || "unidades";
+      document.getElementById("fechaInventario").value = item.fecha || fechaDeHoy();
+      document.getElementById("detalleInventario").value = item.detalle || "";
+      document.getElementById("botonGuardarInventario").textContent = "Guardar cambios";
+      document.getElementById("botonCancelarInventario").classList.remove("oculto");
+      document.getElementById("mensajeInventario").textContent = "Editando este registro de inventario.";
+      document.getElementById("mensajeInventario").className = "mensaje";
+      document.getElementById("nombreInventario").focus();
+    }
+
+    function cancelarEdicionInventario() {
+      idInventarioEditando = null;
+      document.getElementById("botonGuardarInventario").textContent = "Guardar inventario";
+      document.getElementById("botonCancelarInventario").classList.add("oculto");
+      document.getElementById("nombreInventario").value = "";
+      document.getElementById("cantidadInventario").value = "";
+      document.getElementById("detalleInventario").value = "";
+      document.getElementById("fechaInventario").value = fechaDeHoy();
     }
 
     function mostrarInventario() {
@@ -1331,7 +1574,10 @@
               <p><strong>Fecha:</strong> ${escaparHTML(item.fecha)}</p>
               <p>${escaparHTML(item.detalle || "")}</p>
             </div>
-            <button class="boton-eliminar" onclick="eliminarInventario(${item.id})">Eliminar</button>
+            <div class="acciones-registro">
+              <button class="boton-editar" onclick="editarInventario(${item.id})">✏️ Editar</button>
+              <button class="boton-eliminar" onclick="eliminarInventario(${item.id})">Eliminar</button>
+            </div>
           </div>
         `;
       }).join("");
@@ -1357,7 +1603,7 @@
       evento.preventDefault();
 
       const nota = {
-        id: Date.now(),
+        id: idNotaEditando !== null ? idNotaEditando : Date.now(),
         fecha: document.getElementById("fechaNota").value,
         titulo: document.getElementById("tituloNota").value.trim(),
         texto: document.getElementById("textoNota").value.trim()
@@ -1369,16 +1615,52 @@
         return;
       }
 
-      notas.push(nota);
-      guardarNotas();
+      if (idNotaEditando !== null) {
+        const indice = notas.findIndex(function(item) {
+          return item.id === idNotaEditando;
+        });
+        if (indice !== -1) notas[indice] = nota;
+        guardarNotas();
+        cancelarEdicionNota();
+        document.getElementById("mensajeNota").textContent = "Nota actualizada correctamente.";
+      } else {
+        notas.push(nota);
+        guardarNotas();
+        document.getElementById("mensajeNota").textContent = "Nota guardada correctamente.";
+      }
 
       document.getElementById("tituloNota").value = "";
       document.getElementById("textoNota").value = "";
+      document.getElementById("fechaNota").value = fechaDeHoy();
 
-      document.getElementById("mensajeNota").textContent = "Nota guardada correctamente.";
       document.getElementById("mensajeNota").className = "mensaje exito";
-
       mostrarNotas();
+    }
+
+    function editarNota(id) {
+      const nota = notas.find(function(item) {
+        return item.id === id;
+      });
+      if (!nota) return;
+
+      idNotaEditando = id;
+      document.getElementById("fechaNota").value = nota.fecha || fechaDeHoy();
+      document.getElementById("tituloNota").value = nota.titulo || "";
+      document.getElementById("textoNota").value = nota.texto || "";
+      document.getElementById("botonGuardarNota").textContent = "Guardar cambios";
+      document.getElementById("botonCancelarNota").classList.remove("oculto");
+      document.getElementById("mensajeNota").textContent = "Editando esta nota.";
+      document.getElementById("mensajeNota").className = "mensaje";
+      document.getElementById("tituloNota").focus();
+    }
+
+    function cancelarEdicionNota() {
+      idNotaEditando = null;
+      document.getElementById("botonGuardarNota").textContent = "Guardar nota";
+      document.getElementById("botonCancelarNota").classList.add("oculto");
+      document.getElementById("fechaNota").value = fechaDeHoy();
+      document.getElementById("tituloNota").value = "";
+      document.getElementById("textoNota").value = "";
     }
 
     function mostrarNotas() {
@@ -1398,7 +1680,10 @@
               <p><strong>Fecha:</strong> ${escaparHTML(nota.fecha)}</p>
               <p>${escaparHTML(nota.texto)}</p>
             </div>
-            <button class="boton-eliminar" onclick="eliminarNota(${nota.id})">Eliminar</button>
+            <div class="acciones-registro">
+              <button class="boton-editar" onclick="editarNota(${nota.id})">✏️ Editar</button>
+              <button class="boton-eliminar" onclick="eliminarNota(${nota.id})">Eliminar</button>
+            </div>
           </div>
         `;
       }).join("");
