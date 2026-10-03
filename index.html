@@ -269,7 +269,7 @@
     .produccion-item,
     .inventario-item,
     .nota-item {
-      background: #fcfbfb;
+      background: #f7faf7;
       padding: 15px;
       margin-bottom: 12px;
       border-radius: 8px;
@@ -488,6 +488,20 @@
         padding: 25px;
       }
     }
+
+    /* COPIAS DE SEGURIDAD */
+    .aviso-respaldo { border-left: 6px solid #276738; }
+    .aviso-respaldo.respaldo-atencion { border-left-color: #e0a100; background: #fff8e1; }
+    .aviso-respaldo.respaldo-alerta { border-left-color: #c62828; background: #fdecea; }
+    .aviso-respaldo h3 { margin-top: 0; }
+    .aviso-respaldo details { margin-top: 16px; }
+    .aviso-respaldo summary { cursor: pointer; font-weight: bold; color: #34483a; }
+    .copia-auto {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; flex-wrap: wrap;
+      background: #f7faf7; padding: 10px 12px; border-radius: 8px; margin-top: 8px;
+    }
+    .nota-respaldo { font-size: 14px; color: #5b6b60; margin-bottom: 0; }
   </style>
 </head>
 
@@ -541,6 +555,22 @@
         <!-- INICIO -->
         <section id="seccion-inicio" class="seccion">
           <h2>Resumen de la finca</h2>
+
+          <!-- COPIAS DE SEGURIDAD -->
+          <div id="avisoRespaldo" class="tarjeta aviso-respaldo">
+            <h3>🛡️ Copias de seguridad</h3>
+            <p id="textoRespaldo"></p>
+            <div class="acciones">
+              <button class="boton boton-azul" onclick="descargarRespaldoCompleto()">💾 Descargar respaldo completo</button>
+              <button class="boton" id="botonCompartir" onclick="compartirRespaldo()">📲 Enviar por WhatsApp / Drive</button>
+              <button class="boton boton-gris" onclick="document.getElementById('inputRespaldoCompleto').click()">♻️ Restaurar respaldo</button>
+            </div>
+            <details>
+              <summary>Copias automáticas de este navegador</summary>
+              <div id="listaCopiasAuto"></div>
+            </details>
+            <p class="nota-respaldo">Guarda el archivo descargado en un lugar seguro (Drive, WhatsApp a ti mismo, correo o memoria USB). Las copias automáticas viven en este mismo navegador, así que no reemplazan al archivo descargado.</p>
+          </div>
 
           <div class="tarjetas-resumen">
             <div class="tarjeta-resumen tarjeta-ventas">
@@ -647,13 +677,13 @@
 
             <div class="acciones">
               <button class="boton boton-azul" onclick="exportarCSV()">
-                📥 Descargar Respaldo (CSV)
+                📥 Descargar movimientos (CSV)
               </button>
               
               <input type="file" id="inputCSV" accept=".csv" class="oculto" onchange="importarCSV(event)">
               
               <button class="boton" onclick="document.getElementById('inputCSV').click()">
-                📤 Restaurar Respaldo (CSV)
+                📤 Importar movimientos (CSV)
               </button>
 
               <button class="boton boton-azul" onclick="descargarRespaldoCompleto()">
@@ -666,6 +696,7 @@
                 ♻️ Restaurar respaldo completo
               </button>
 
+          </div>
           </div>
         </section>
 
@@ -914,10 +945,57 @@
 
     let sesionActiva = false;
 
-    let movimientos = JSON.parse(localStorage.getItem("movimientosFinca")) || [];
-    let produccion = JSON.parse(localStorage.getItem("produccionFinca")) || [];
-    let inventario = JSON.parse(localStorage.getItem("inventarioFinca")) || [];
-    let notas = JSON.parse(localStorage.getItem("notasFinca")) || [];
+    /* ALMACENAMIENTO SEGURO */
+    const CLAVE_ULTIMO_RESPALDO = "ultimoRespaldoFinca";
+    const CLAVE_CAMBIOS = "cambiosSinRespaldoFinca";
+    const CLAVE_COPIAS_AUTO = "copiasAutomaticasFinca";
+    const MAX_COPIAS_AUTO = 5;
+    const clavesDanadas = [];
+
+    // Pide al navegador que no borre los datos de la app por falta de espacio.
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().catch(function() {});
+    }
+
+    function cargarLista(clave) {
+      try {
+        const dato = JSON.parse(localStorage.getItem(clave));
+        return Array.isArray(dato) ? dato : [];
+      } catch (error) {
+        // Si el dato está dañado, se conserva aparte para poder recuperarlo y se empieza con lista vacía.
+        try {
+          localStorage.setItem(clave + "_danado_" + Date.now(), localStorage.getItem(clave));
+        } catch (e) {}
+        clavesDanadas.push(clave);
+        return [];
+      }
+    }
+
+    function leerNumero(clave) {
+      try {
+        const n = Number(localStorage.getItem(clave));
+        return Number.isFinite(n) ? n : 0;
+      } catch (error) {
+        return 0;
+      }
+    }
+
+    // Guarda y cuenta los cambios hechos desde el último respaldo descargado.
+    function guardarLocal(clave, datos) {
+      try {
+        localStorage.setItem(clave, JSON.stringify(datos));
+        localStorage.setItem(CLAVE_CAMBIOS, String(leerNumero(CLAVE_CAMBIOS) + 1));
+        return true;
+      } catch (error) {
+        alert("⚠️ No se pudo guardar en este navegador (almacenamiento lleno o bloqueado). Descarga un respaldo ahora para no perder información.");
+        return false;
+      }
+    }
+
+    let movimientos = cargarLista("movimientosFinca");
+    let produccion = cargarLista("produccionFinca");
+    let inventario = cargarLista("inventarioFinca");
+    let notas = cargarLista("notasFinca");
 
     // IDs de los registros que se están editando.
     let idMovimientoEditando = null;
@@ -962,6 +1040,11 @@
         document.getElementById("pantallaLogin").classList.add("oculto");
         document.getElementById("aplicacion").classList.remove("oculto");
         mensaje.textContent = "";
+        if (clavesDanadas.length > 0) {
+          alert("⚠️ Algunos datos guardados estaban dañados y no se pudieron leer. Se conservó una copia aparte en el navegador. Si tienes un respaldo, usa 'Restaurar respaldo'.");
+          clavesDanadas.length = 0;
+        }
+        crearCopiaDiaria();
         actualizarTodo();
       } else {
         mensaje.textContent = "Usuario o contraseña incorrectos.";
@@ -969,6 +1052,11 @@
     }
 
     function cerrarSesion() {
+      const pendientes = leerNumero(CLAVE_CAMBIOS);
+      if (hayDatos() && pendientes > 0 &&
+          confirm("Tienes " + pendientes + " cambios sin respaldar. ¿Quieres descargar un respaldo antes de salir?")) {
+        descargarRespaldoCompleto();
+      }
       sesionActiva = false;
       document.getElementById("aplicacion").classList.add("oculto");
       document.getElementById("pantallaLogin").classList.remove("oculto");
@@ -994,7 +1082,7 @@
 
     /* MOVIMIENTOS */
     function guardarMovimientos() {
-      localStorage.setItem("movimientosFinca", JSON.stringify(movimientos));
+      guardarLocal("movimientosFinca", movimientos);
     }
 
     function registrarMovimiento(evento) {
@@ -1245,113 +1333,256 @@
     function borrarTodosLosMovimientos() {
       if (!confirm("¿Deseas borrar todos los movimientos?")) return;
 
+      crearCopiaAutomatica("Antes de borrar todos los movimientos");
       movimientos = [];
       guardarMovimientos();
       actualizarTodo();
     }
 
-    /* COPIA DE SEGURIDAD CSV */
-    function exportarCSV() {
-      if (movimientos.length === 0) {
-        alert("No hay movimientos registrados para exportar.");
-        return;
-      }
-
-      let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-      csvContent += "Fecha,Tipo,Categoría,Descripción,Monto\n";
-
-      movimientos.forEach(function(item) {
-        const fecha = item.fecha || "";
-        const tipo = item.tipo || "";
-        const categoria = item.categoria || "";
-        const descripcion = (item.descripcion || "").replaceAll('"', '""');
-        const monto = item.monto || 0;
-
-        csvContent += `"${fecha}","${tipo}","${categoria}","${descripcion}","${monto}"\n`;
-      });
-
-      const encodedUri = encodeURI(csvContent);
-      const enlace = document.createElement("a");
-      enlace.setAttribute("href", encodedUri);
-      enlace.setAttribute("download", `respaldo_finca_${fechaDeHoy()}.csv`);
-      document.body.appendChild(enlace);
-      enlace.click();
-      document.body.removeChild(enlace);
+    /* ===== COPIAS DE SEGURIDAD ===== */
+    function hayDatos() {
+      return movimientos.length + produccion.length + inventario.length + notas.length > 0;
     }
 
-    function importarCSV(evento) {
-      const archivo = evento.target.files[0];
-      if (!archivo) return;
-
-      const lector = new FileReader();
-
-      lector.onload = function(e) {
-        const contenido = e.target.result;
-        const lineas = contenido.split("\n").map(l => l.trim()).filter(l => l.length > 0);
-
-        if (lineas.length <= 1) {
-          alert("El archivo CSV está vacío o no contiene registros.");
-          return;
-        }
-
-        const nuevosMovimientos = [];
-
-        for (let i = 1; i < lineas.length; i++) {
-          const columnas = lineas[i].split(",").map(col => col.replace(/^"|"$/g, "").replaceAll('""', '"').trim());
-
-          if (columnas.length >= 5) {
-            nuevosMovimientos.push({
-              id: Date.now() + i,
-              fecha: columnas[0],
-              tipo: columnas[1],
-              categoria: columnas[2],
-              descripcion: columnas[3],
-              monto: Number(columnas[4]) || 0
-            });
-          }
-        }
-
-        if (nuevosMovimientos.length > 0) {
-          if (confirm(`Se encontraron ${nuevosMovimientos.length} movimientos. ¿Deseas cargarlos y reemplazar los actuales?`)) {
-            movimientos = nuevosMovimientos;
-            guardarMovimientos();
-            actualizarTodo();
-            alert("¡Copia de seguridad restaurada correctamente!");
-          }
-        } else {
-          alert("No se pudo leer la información del archivo CSV.");
-        }
-
-        evento.target.value = "";
-      };
-
-      lector.readAsText(archivo, "UTF-8");
+    function formatearFechaHora(iso) {
+      const fecha = new Date(iso);
+      return isNaN(fecha) ? "fecha desconocida" : fecha.toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
     }
 
-    /* RESPALDO COMPLETO */
-    function descargarRespaldoCompleto() {
-      const respaldo = {
-        version: 2,
+    function resumenDatos(d) {
+      return d.movimientos.length + " movimientos, " + d.produccion.length + " registros de producción, " +
+             d.inventario.length + " de inventario y " + d.notas.length + " notas";
+    }
+
+    function construirRespaldo() {
+      return {
+        aplicacion: "Mi Finca Cafetera",
+        version: 3,
         fechaRespaldo: new Date().toISOString(),
+        conteo: {
+          movimientos: movimientos.length,
+          produccion: produccion.length,
+          inventario: inventario.length,
+          notas: notas.length
+        },
         movimientos: movimientos,
         produccion: produccion,
         inventario: inventario,
         notas: notas
       };
+    }
 
-      const contenido = JSON.stringify(respaldo, null, 2);
-      const blob = new Blob([contenido], { type: "application/json;charset=utf-8" });
+    function descargarArchivo(contenido, nombre, tipo) {
+      const blob = new Blob([contenido], { type: tipo });
       const enlace = document.createElement("a");
       enlace.href = URL.createObjectURL(blob);
-      enlace.download = `respaldo_completo_finca_${fechaDeHoy()}.json`;
+      enlace.download = nombre;
       document.body.appendChild(enlace);
       enlace.click();
       document.body.removeChild(enlace);
-      URL.revokeObjectURL(enlace.href);
+      setTimeout(function() { URL.revokeObjectURL(enlace.href); }, 2000);
+    }
+
+    function marcarRespaldoHecho() {
+      try {
+        localStorage.setItem(CLAVE_ULTIMO_RESPALDO, new Date().toISOString());
+        localStorage.setItem(CLAVE_CAMBIOS, "0");
+      } catch (error) {}
+      actualizarAvisoRespaldo();
+    }
+
+    function descargarRespaldoCompleto() {
+      if (!hayDatos()) {
+        alert("Todavía no hay datos para respaldar.");
+        return;
+      }
+      descargarArchivo(
+        JSON.stringify(construirRespaldo(), null, 2),
+        "respaldo_completo_finca_" + fechaDeHoy() + ".json",
+        "application/json;charset=utf-8"
+      );
+      marcarRespaldoHecho();
+    }
+
+    // Permite enviar el respaldo por WhatsApp, Drive, correo, etc. desde el celular.
+    async function compartirRespaldo() {
+      if (!hayDatos()) {
+        alert("Todavía no hay datos para respaldar.");
+        return;
+      }
+      const nombre = "respaldo_completo_finca_" + fechaDeHoy() + ".json";
+      const archivo = new File([JSON.stringify(construirRespaldo(), null, 2)], nombre, { type: "application/json" });
+
+      if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+        try {
+          await navigator.share({ files: [archivo], title: "Respaldo Mi Finca Cafetera" });
+          marcarRespaldoHecho();
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            alert("No se pudo compartir el archivo. Usa 'Descargar respaldo completo'.");
+          }
+        }
+      } else {
+        alert("Este navegador no permite compartir archivos. Se descargará el respaldo.");
+        descargarRespaldoCompleto();
+      }
+    }
+
+    /* Copias automáticas dentro del navegador (red de seguridad, no reemplazan al archivo descargado) */
+    function leerCopiasAuto() {
+      try {
+        const copias = JSON.parse(localStorage.getItem(CLAVE_COPIAS_AUTO));
+        return Array.isArray(copias) ? copias : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function crearCopiaAutomatica(motivo) {
+      if (!hayDatos()) return;
+      let copias = leerCopiasAuto();
+      copias.unshift({
+        fecha: new Date().toISOString(),
+        dia: fechaDeHoy(),
+        motivo: motivo,
+        datos: construirRespaldo()
+      });
+      copias = copias.slice(0, MAX_COPIAS_AUTO);
+
+      // Si no cabe, se descartan las copias más antiguas.
+      while (copias.length > 0) {
+        try {
+          localStorage.setItem(CLAVE_COPIAS_AUTO, JSON.stringify(copias));
+          return;
+        } catch (error) {
+          copias.pop();
+        }
+      }
+    }
+
+    function crearCopiaDiaria() {
+      const copias = leerCopiasAuto();
+      const hayDeHoy = copias.some(function(c) {
+        return c && c.dia === fechaDeHoy() && c.motivo === "Copia diaria automática";
+      });
+      if (!hayDeHoy) crearCopiaAutomatica("Copia diaria automática");
+    }
+
+    function mostrarCopiasAutomaticas() {
+      const contenedor = document.getElementById("listaCopiasAuto");
+      if (!contenedor) return;
+      const copias = leerCopiasAuto();
+
+      if (copias.length === 0) {
+        contenedor.innerHTML = '<p class="sin-datos">Aún no hay copias automáticas. Se crean una vez al día al iniciar sesión y antes de restaurar, importar o borrar datos.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = copias.map(function(copia, indice) {
+        const d = copia.datos || {};
+        const texto = Array.isArray(d.movimientos) ? resumenDatos({
+          movimientos: d.movimientos, produccion: d.produccion || [], inventario: d.inventario || [], notas: d.notas || []
+        }) : "contenido no disponible";
+        return `
+          <div class="copia-auto">
+            <div>
+              <strong>${escaparHTML(formatearFechaHora(copia.fecha))}</strong> — ${escaparHTML(copia.motivo || "")}<br>
+              <small>${escaparHTML(texto)}</small>
+            </div>
+            <button class="boton boton-gris" onclick="restaurarCopiaAutomatica(${indice})">Restaurar</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function actualizarAvisoRespaldo() {
+      const caja = document.getElementById("avisoRespaldo");
+      const texto = document.getElementById("textoRespaldo");
+      if (!caja || !texto) return;
+
+      const botonCompartir = document.getElementById("botonCompartir");
+      if (botonCompartir && !navigator.share) botonCompartir.classList.add("oculto");
+
+      let ultimo = null;
+      try { ultimo = localStorage.getItem(CLAVE_ULTIMO_RESPALDO); } catch (error) {}
+      const cambios = leerNumero(CLAVE_CAMBIOS);
+      const dias = ultimo ? Math.floor((Date.now() - new Date(ultimo).getTime()) / 86400000) : null;
+
+      caja.classList.remove("respaldo-atencion", "respaldo-alerta");
+
+      if (!hayDatos()) {
+        texto.textContent = "Aún no hay datos que respaldar. Cuando registres información, aquí verás el estado de tu copia de seguridad.";
+      } else if (!ultimo) {
+        caja.classList.add("respaldo-alerta");
+        texto.textContent = "⚠️ Todavía no has descargado ningún respaldo. Si se borra el historial del navegador o cambias de celular, perderías toda la información. Descarga uno ahora.";
+      } else if ((dias >= 7 && cambios > 0) || cambios >= 15) {
+        caja.classList.add("respaldo-atencion");
+        texto.textContent = "⏰ Tu último respaldo fue el " + formatearFechaHora(ultimo) + " (hace " + dias + " días) y has hecho " + cambios + " cambios desde entonces. Conviene descargar uno nuevo.";
+      } else {
+        texto.textContent = "✅ Último respaldo: " + formatearFechaHora(ultimo) + ". Cambios desde entonces: " + cambios + ".";
+      }
+    }
+
+    /* Limpieza y validación de datos importados */
+    function normalizarLista(lista) {
+      const usados = new Set();
+      const resultado = [];
+      (Array.isArray(lista) ? lista : []).forEach(function(item, i) {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return;
+        let id = Number(item.id);
+        if (!Number.isFinite(id) || usados.has(id)) {
+          id = Date.now() + i + Math.floor(Math.random() * 1000);
+          while (usados.has(id)) id++;
+        }
+        usados.add(id);
+        resultado.push(Object.assign({}, item, { id: id }));
+      });
+      return resultado;
+    }
+
+    function limpiarMovimientos(lista) {
+      const validos = [];
+      normalizarLista(lista).forEach(function(item) {
+        const tipo = String(item.tipo || "").toLowerCase().trim();
+        const fecha = String(item.fecha || "").trim();
+        const monto = Number(item.monto);
+        const fechaValida = /^\d{4}-\d{2}-\d{2}$/.test(fecha) && !isNaN(new Date(fecha));
+        if ((tipo !== "venta" && tipo !== "gasto") || !fechaValida || !Number.isFinite(monto) || monto < 0) return;
+        validos.push({
+          id: item.id,
+          tipo: tipo,
+          categoria: String(item.categoria || "otro"),
+          fecha: fecha,
+          descripcion: String(item.descripcion || ""),
+          monto: monto
+        });
+      });
+      const total = Array.isArray(lista) ? lista.length : 0;
+      return { validos: validos, descartados: total - validos.length };
+    }
+
+    function aplicarDatos(nuevos) {
+      movimientos = nuevos.movimientos;
+      produccion = nuevos.produccion;
+      inventario = nuevos.inventario;
+      notas = nuevos.notas;
+
+      idMovimientoEditando = null;
+      idProduccionEditando = null;
+      idInventarioEditando = null;
+      idNotaEditando = null;
+
+      guardarMovimientos();
+      guardarProduccion();
+      guardarInventario();
+      guardarNotas();
+      try { localStorage.setItem(CLAVE_CAMBIOS, "0"); } catch (error) {}
+      actualizarTodo();
     }
 
     function restaurarRespaldoCompleto(evento) {
-      const archivo = evento.target.files[0];
+      const entrada = evento.target;
+      const archivo = entrada.files[0];
       if (!archivo) return;
 
       const lector = new FileReader();
@@ -1359,35 +1590,203 @@
       lector.onload = function(e) {
         try {
           const respaldo = JSON.parse(e.target.result);
+          const claves = ["movimientos", "produccion", "inventario", "notas"];
 
-          if (!respaldo || typeof respaldo !== "object" || !Array.isArray(respaldo.movimientos) ||
-              !Array.isArray(respaldo.produccion) || !Array.isArray(respaldo.inventario) ||
-              !Array.isArray(respaldo.notas)) {
+          if (!respaldo || typeof respaldo !== "object" ||
+              !claves.some(function(k) { return Array.isArray(respaldo[k]); })) {
             throw new Error("Formato no válido");
           }
 
-          if (!confirm("Este respaldo reemplazará los datos actuales de movimientos, producción, inventario y bitácora. ¿Deseas continuar?")) {
-            evento.target.value = "";
+          const limpio = limpiarMovimientos(respaldo.movimientos);
+          const nuevos = {
+            movimientos: limpio.validos,
+            produccion: normalizarLista(respaldo.produccion),
+            inventario: normalizarLista(respaldo.inventario),
+            notas: normalizarLista(respaldo.notas)
+          };
+
+          const fechaTexto = respaldo.fechaRespaldo ? " del " + formatearFechaHora(respaldo.fechaRespaldo) : "";
+          let mensaje = "Respaldo" + fechaTexto + ":\n" + resumenDatos(nuevos) + ".\n\n";
+          if (limpio.descartados > 0) {
+            mensaje += "Se omitirán " + limpio.descartados + " movimientos con datos incorrectos.\n\n";
+          }
+          mensaje += "Esto REEMPLAZARÁ los datos actuales (" + resumenDatos({ movimientos: movimientos, produccion: produccion, inventario: inventario, notas: notas }) + ").\n";
+          mensaje += "Antes se guardará una copia automática de lo actual por si te arrepientes.\n\n¿Deseas continuar?";
+
+          if (!confirm(mensaje)) return;
+
+          crearCopiaAutomatica("Antes de restaurar un respaldo");
+          aplicarDatos(nuevos);
+          alert("¡Respaldo restaurado correctamente!");
+        } catch (error) {
+          alert("No se pudo restaurar el respaldo. Verifica que sea un archivo JSON generado por esta aplicación. Tus datos actuales no fueron modificados.");
+        } finally {
+          entrada.value = "";
+        }
+      };
+
+      lector.readAsText(archivo, "UTF-8");
+    }
+
+    function restaurarCopiaAutomatica(indice) {
+      const copia = leerCopiasAuto()[indice];
+      if (!copia || !copia.datos) {
+        alert("No se pudo leer esa copia automática.");
+        return;
+      }
+
+      const limpio = limpiarMovimientos(copia.datos.movimientos);
+      const nuevos = {
+        movimientos: limpio.validos,
+        produccion: normalizarLista(copia.datos.produccion),
+        inventario: normalizarLista(copia.datos.inventario),
+        notas: normalizarLista(copia.datos.notas)
+      };
+
+      if (!confirm("Copia del " + formatearFechaHora(copia.fecha) + ":\n" + resumenDatos(nuevos) +
+                   ".\n\nEsto reemplazará los datos actuales (se guardará antes una copia de lo actual). ¿Continuar?")) return;
+
+      crearCopiaAutomatica("Antes de restaurar una copia automática");
+      aplicarDatos(nuevos);
+      alert("Copia restaurada correctamente.");
+    }
+
+    /* CSV (solo movimientos) */
+    function celdaCSV(valor) {
+      return '"' + String(valor === undefined || valor === null ? "" : valor).replaceAll('"', '""') + '"';
+    }
+
+    function exportarCSV() {
+      if (movimientos.length === 0) {
+        alert("No hay movimientos registrados para exportar.");
+        return;
+      }
+
+      let csv = "\uFEFFFecha,Tipo,Categoría,Descripción,Monto\r\n";
+      movimientos.forEach(function(item) {
+        csv += [item.fecha, item.tipo, item.categoria, item.descripcion, item.monto].map(celdaCSV).join(",") + "\r\n";
+      });
+
+      descargarArchivo(csv, "respaldo_finca_" + fechaDeHoy() + ".csv", "text/csv;charset=utf-8");
+    }
+
+    // Lector de CSV que respeta comillas, comas y saltos de línea dentro de los textos.
+    function parsearCSV(texto) {
+      texto = texto.replace(/^\uFEFF/, "");
+      const primera = texto.split(/\r?\n/)[0] || "";
+      const separador = primera.split(";").length > primera.split(",").length ? ";" : ",";
+
+      const filas = [];
+      let fila = [];
+      let campo = "";
+      let entreComillas = false;
+
+      function cerrarFila() {
+        fila.push(campo);
+        campo = "";
+        if (fila.some(function(x) { return x.trim() !== ""; })) filas.push(fila);
+        fila = [];
+      }
+
+      for (let i = 0; i < texto.length; i++) {
+        const c = texto[i];
+        if (entreComillas) {
+          if (c === '"') {
+            if (texto[i + 1] === '"') { campo += '"'; i++; }
+            else entreComillas = false;
+          } else {
+            campo += c;
+          }
+        } else if (c === '"') {
+          entreComillas = true;
+        } else if (c === separador) {
+          fila.push(campo);
+          campo = "";
+        } else if (c === "\n" || c === "\r") {
+          if (c === "\r" && texto[i + 1] === "\n") i++;
+          cerrarFila();
+        } else {
+          campo += c;
+        }
+      }
+      cerrarFila();
+      return filas;
+    }
+
+    function importarCSV(evento) {
+      const entrada = evento.target;
+      const archivo = entrada.files[0];
+      if (!archivo) return;
+
+      const lector = new FileReader();
+
+      lector.onload = function(e) {
+        try {
+          const filas = parsearCSV(String(e.target.result));
+
+          if (filas.length <= 1) {
+            alert("El archivo CSV está vacío o no contiene registros.");
             return;
           }
 
-          movimientos = respaldo.movimientos;
-          produccion = respaldo.produccion;
-          inventario = respaldo.inventario;
-          notas = respaldo.notas;
+          const candidatos = [];
+          for (let i = 1; i < filas.length; i++) {
+            const c = filas[i].map(function(x) { return x.trim(); });
+            if (c.length < 5) continue;
+            candidatos.push({
+              id: Date.now() + i,
+              fecha: c[0],
+              tipo: c[1],
+              categoria: c[2] || "otro",
+              descripcion: c[3],
+              monto: Number(c[4].replace(",", "."))
+            });
+          }
 
+          const limpio = limpiarMovimientos(candidatos);
+          const omitidos = (filas.length - 1) - limpio.validos.length;
+
+          if (limpio.validos.length === 0) {
+            alert("No se pudo leer ningún movimiento válido. Revisa que el archivo tenga las columnas: Fecha (AAAA-MM-DD), Tipo (venta/gasto), Categoría, Descripción y Monto.");
+            return;
+          }
+
+          // Se agregan solo los que todavía no existen (así no se duplican al restaurar dos veces).
+          const existentes = {};
+          const clave = function(m) { return [m.fecha, m.tipo, m.categoria, m.descripcion, Number(m.monto)].join("|"); };
+          movimientos.forEach(function(m) { const k = clave(m); existentes[k] = (existentes[k] || 0) + 1; });
+
+          const nuevos = [];
+          limpio.validos.forEach(function(m) {
+            const k = clave(m);
+            if (existentes[k] > 0) existentes[k]--;
+            else nuevos.push(m);
+          });
+
+          const repetidos = limpio.validos.length - nuevos.length;
+
+          if (nuevos.length === 0) {
+            alert("Todos los movimientos del archivo ya existen en la app. No se agregó nada.");
+            return;
+          }
+
+          let mensaje = "Se leyeron " + limpio.validos.length + " movimientos válidos.\n";
+          if (repetidos > 0) mensaje += repetidos + " ya existen y se omitirán.\n";
+          if (omitidos > 0) mensaje += omitidos + " filas se omitieron por datos incorrectos.\n";
+          mensaje += "\n¿Agregar " + nuevos.length + " movimientos nuevos? Tus datos actuales NO se borrarán.";
+
+          if (!confirm(mensaje)) return;
+
+          crearCopiaAutomatica("Antes de importar un CSV");
+          movimientos = movimientos.concat(nuevos);
           guardarMovimientos();
-          guardarProduccion();
-          guardarInventario();
-          guardarNotas();
           actualizarTodo();
-
-          alert("¡Respaldo completo restaurado correctamente!");
+          alert("¡Se agregaron " + nuevos.length + " movimientos!");
         } catch (error) {
-          alert("No se pudo restaurar el respaldo. Verifica que sea un archivo JSON generado por esta aplicación.");
+          alert("No se pudo leer el archivo CSV. Tus datos actuales no fueron modificados.");
+        } finally {
+          entrada.value = "";
         }
-
-        evento.target.value = "";
       };
 
       lector.readAsText(archivo, "UTF-8");
@@ -1501,7 +1900,7 @@
     }
 
     function guardarProduccion() {
-      localStorage.setItem("produccionFinca", JSON.stringify(produccion));
+      guardarLocal("produccionFinca", produccion);
     }
 
     function registrarProduccion(evento) {
@@ -1757,6 +2156,7 @@
     function borrarTodaLaProduccion() {
       if (!confirm("¿Deseas borrar toda la producción?")) return;
 
+      crearCopiaAutomatica("Antes de borrar toda la producción");
       produccion = [];
       guardarProduccion();
       actualizarProduccion();
@@ -1769,7 +2169,7 @@
 
     /* INVENTARIO */
     function guardarInventario() {
-      localStorage.setItem("inventarioFinca", JSON.stringify(inventario));
+      guardarLocal("inventarioFinca", inventario);
     }
 
     function registrarInventario(evento) {
@@ -1881,7 +2281,7 @@
 
     /* BITÁCORA */
     function guardarNotas() {
-      localStorage.setItem("notasFinca", JSON.stringify(notas));
+      guardarLocal("notasFinca", notas);
     }
 
     function registrarNota(evento) {
@@ -1994,6 +2394,8 @@
       actualizarProduccion();
       mostrarInventario();
       mostrarNotas();
+      actualizarAvisoRespaldo();
+      mostrarCopiasAutomaticas();
     }
 
     /* FECHAS INICIALES */
