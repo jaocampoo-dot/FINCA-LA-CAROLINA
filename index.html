@@ -269,7 +269,7 @@
     .produccion-item,
     .inventario-item,
     .nota-item {
-      background: #f7faf7;
+      background: #fcfbfb;
       padding: 15px;
       margin-bottom: 12px;
       border-radius: 8px;
@@ -381,6 +381,39 @@
       margin-top: 8px;
     }
 
+    .tabla-resumen {
+      overflow-x: auto;
+    }
+
+    .tabla-resumen table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #f7faf7;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tabla-resumen th,
+    .tabla-resumen td {
+      padding: 10px;
+      border-bottom: 1px solid #dce5dd;
+      text-align: left;
+    }
+
+    .tabla-resumen th {
+      background: #edf5e9;
+      color: #174d2a;
+    }
+
+    .tabla-resumen td:last-child,
+    .tabla-resumen th:last-child {
+      text-align: right;
+    }
+
+    .resumen-produccion-mensual {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
     @media (max-width: 950px) {
       .contenedor-principal {
         display: block;
@@ -407,6 +440,25 @@
     }
 
     @media (max-width: 600px) {
+      .menu button {
+        background: rgba(255, 255, 255, 0.96);
+        color: #174d2a;
+        border: 1px solid #dce5dd;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+        font-weight: 600;
+      }
+
+      .menu button.activo {
+        background: #dcebdc;
+        color: #174d2a;
+        border-color: #b9d3b8;
+        font-weight: bold;
+      }
+
+      .menu button:active {
+        background: #c9dfc9;
+      }
+
       .contenido {
         padding: 15px;
       }
@@ -564,6 +616,32 @@
           </div>
 
           <div class="tarjeta">
+            <h3>Resumen mensual de ventas y gastos</h3>
+            <div class="campo" style="max-width: 320px; margin-bottom: 18px;">
+              <label for="mesResumenMovimientos">Mes a consultar</label>
+              <input type="month" id="mesResumenMovimientos" onchange="actualizarResumenMensualMovimientos()">
+            </div>
+
+            <div class="tarjetas-resumen resumen-mensual-movimientos">
+              <div class="tarjeta-resumen tarjeta-ventas">
+                <h3>Ventas del mes</h3>
+                <p id="ventasMensuales">$0</p>
+              </div>
+              <div class="tarjeta-resumen tarjeta-gastos">
+                <h3>Gastos del mes</h3>
+                <p id="gastosMensuales">$0</p>
+              </div>
+              <div class="tarjeta-resumen tarjeta-balance">
+                <h3>Balance del mes</h3>
+                <p id="balanceMensual">$0</p>
+              </div>
+            </div>
+
+            <h4>Detalle por categoría</h4>
+            <div id="detalleMensualMovimientos" class="tabla-resumen"></div>
+          </div>
+
+          <div class="tarjeta">
             <h3>Historial de movimientos</h3>
             <div id="historial"></div>
 
@@ -654,21 +732,45 @@
           </div>
 
           <div class="tarjeta">
-            <h3>Resumen de producción</h3>
-            <div class="resumen-produccion">
+            <h3>Resumen mensual de producción</h3>
+            <div class="campo" style="max-width: 320px; margin-bottom: 18px;">
+              <label for="mesResumenProduccion">Mes a consultar</label>
+              <input type="month" id="mesResumenProduccion" onchange="actualizarResumenProduccion()">
+            </div>
+
+            <div class="resumen-produccion resumen-produccion-mensual">
               <div class="mini-tarjeta">
-                Plátano <strong id="totalPlatano">0 kg</strong>
+                Café cereza <strong id="totalCafeCereza">0</strong>
               </div>
               <div class="mini-tarjeta">
-                Café <strong id="totalCafe">0 kg</strong>
+                Café pergamino <strong id="totalCafePergamino">0</strong>
               </div>
               <div class="mini-tarjeta">
-                Huevos <strong id="totalHuevos">0 unidades</strong>
+                Café pasilla <strong id="totalCafePasilla">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Café tostado natural <strong id="totalCafeTostadoNatural">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Café tostado Honey <strong id="totalCafeTostadoHoney">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Café tostado lavado <strong id="totalCafeTostadoLavado">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Plátano de primera <strong id="totalPlatanoPrimera">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Plátano de segunda <strong id="totalPlatanoSegunda">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Huevos <strong id="totalHuevos">0</strong>
               </div>
               <div class="mini-tarjeta">
                 Otros <strong id="totalOtros">0</strong>
               </div>
             </div>
+            <p class="sin-datos">Las cantidades se mantienen separadas por unidad (kg, libras, medias libras, cubetas, etc.). No se convierten ni se mezclan unidades diferentes.</p>
           </div>
 
           <div class="tarjeta">
@@ -1001,6 +1103,81 @@
       document.getElementById("balance").textContent = formatoPesos(totalVentas - totalGastos);
     }
 
+    function obtenerNombreCategoriaMovimiento(categoria) {
+      const nombres = {
+        "venta-productos": "Venta de productos",
+        "gasto-finca": "Gasto de finca",
+        "nomina": "Nómina",
+        "servicios": "Servicios públicos",
+        "insumos": "Insumos",
+        "transporte": "Transporte",
+        "otro": "Otro"
+      };
+      return nombres[categoria] || categoria || "General";
+    }
+
+    function actualizarResumenMensualMovimientos() {
+      asegurarMesInicial("mesResumenMovimientos");
+      const mes = document.getElementById("mesResumenMovimientos").value;
+      const registros = registrosDelMes(movimientos, mes);
+      let totalVentas = 0;
+      let totalGastos = 0;
+      const categorias = {};
+
+      registros.forEach(function(movimiento) {
+        const monto = Number(movimiento.monto) || 0;
+        if (movimiento.tipo === "venta") totalVentas += monto;
+        if (movimiento.tipo === "gasto") totalGastos += monto;
+
+        const clave = movimiento.categoria || "otro";
+        if (!categorias[clave]) {
+          categorias[clave] = { ventas: 0, gastos: 0 };
+        }
+        if (movimiento.tipo === "venta") categorias[clave].ventas += monto;
+        if (movimiento.tipo === "gasto") categorias[clave].gastos += monto;
+      });
+
+      document.getElementById("ventasMensuales").textContent = formatoPesos(totalVentas);
+      document.getElementById("gastosMensuales").textContent = formatoPesos(totalGastos);
+      document.getElementById("balanceMensual").textContent = formatoPesos(totalVentas - totalGastos);
+
+      const contenedor = document.getElementById("detalleMensualMovimientos");
+      const claves = Object.keys(categorias).sort(function(a, b) {
+        return obtenerNombreCategoriaMovimiento(a).localeCompare(obtenerNombreCategoriaMovimiento(b), "es");
+      });
+
+      if (claves.length === 0) {
+        contenedor.innerHTML = '<p class="sin-datos">No hay movimientos registrados en este mes.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Ventas</th>
+              <th>Gastos</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${claves.map(function(clave) {
+              const datos = categorias[clave];
+              return `
+                <tr>
+                  <td>${escaparHTML(obtenerNombreCategoriaMovimiento(clave))}</td>
+                  <td>${formatoPesos(datos.ventas)}</td>
+                  <td>${formatoPesos(datos.gastos)}</td>
+                  <td>${formatoPesos(datos.ventas - datos.gastos)}</td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
     function ordenarPorFecha(lista) {
       return [...lista].sort(function(a, b) {
         return String(b.fecha).localeCompare(String(a.fecha));
@@ -1273,8 +1450,14 @@
 
       if (producto === "cafe") {
         calidad.innerHTML = `
-          <option value="cafe-verde">Café producido</option>
-          <option value="cafe-tostado">Café tostado</option>
+          <option value="cafe-cereza">Café cereza</option>
+          <option value="cafe-pergamino">Café pergamino</option>
+          <option value="cafe-pasilla">Café pasilla</option>
+          <option value="cafe-tostado-natural">Café tostado natural</option>
+          <option value="cafe-tostado-honey">Café tostado Honey</option>
+          <option value="cafe-tostado-lavado">Café tostado lavado</option>
+          <option value="cafe-tostado">Café tostado (registro anterior)</option>
+          <option value="cafe-verde">Café producido (registro anterior)</option>
         `;
         unidad.innerHTML = `
           <option value="kg">Kilogramos</option>
@@ -1409,25 +1592,127 @@
       cambiarProducto();
     }
 
-    function actualizarResumenProduccion() {
-      let platano = 0;
-      let cafe = 0;
-      let huevos = 0;
-      let otros = 0;
+    function obtenerMesActual() {
+      return fechaDeHoy().slice(0, 7);
+    }
 
-      produccion.forEach(function(item) {
-        if (item.producto === "platano") platano += Number(item.cantidad);
-        if (item.producto === "cafe") cafe += Number(item.cantidad);
-        if (item.producto === "huevos") huevos += Number(item.cantidad);
-        if (item.producto !== "platano" && item.producto !== "cafe" && item.producto !== "huevos") {
-          otros += Number(item.cantidad);
-        }
+    function asegurarMesInicial(id) {
+      const campo = document.getElementById(id);
+      if (campo && !campo.value) campo.value = obtenerMesActual();
+    }
+
+    function registrosDelMes(lista, mes) {
+      return lista.filter(function(item) {
+        return String(item.fecha || "").slice(0, 7) === mes;
+      });
+    }
+
+    function formatearCantidadPorUnidad(items) {
+      const totales = {};
+
+      items.forEach(function(item) {
+        const unidad = item.unidad || "sin unidad";
+        const cantidad = Number(item.cantidad) || 0;
+        totales[unidad] = (totales[unidad] || 0) + cantidad;
       });
 
-      document.getElementById("totalPlatano").textContent = platano + " kg";
-      document.getElementById("totalCafe").textContent = cafe + " kg";
-      document.getElementById("totalHuevos").textContent = huevos + " unidades";
-      document.getElementById("totalOtros").textContent = otros;
+      const etiquetas = {
+        kg: "kg",
+        "media-libra": "medias libras",
+        libra: "libras",
+        cuarteron: "cuarterones",
+        unidades: "unidades",
+        cubetas: "cubetas",
+        canastos: "canastos",
+        bultos: "bultos",
+        cajas: "cajas",
+        litros: "litros",
+        "sin unidad": ""
+      };
+
+      const partes = Object.keys(totales).map(function(unidad) {
+        const cantidad = Number(totales[unidad].toFixed(2));
+        const etiqueta = etiquetas[unidad] !== undefined ? etiquetas[unidad] : unidad;
+        return cantidad + (etiqueta ? " " + etiqueta : "");
+      });
+
+      return partes.length ? partes.join(" + ") : "0";
+    }
+
+    function obtenerCategoriaProduccion(item) {
+      if (item.producto === "platano") {
+        if (item.calidad === "primera") return "platanoPrimera";
+        if (item.calidad === "segunda") return "platanoSegunda";
+      }
+
+      if (item.producto === "cafe") {
+        if (item.calidad === "cafe-cereza") return "cafeCereza";
+        if (item.calidad === "cafe-pergamino") return "cafePergamino";
+        if (item.calidad === "cafe-pasilla") return "cafePasilla";
+        if (item.calidad === "cafe-tostado-natural") return "cafeTostadoNatural";
+        if (item.calidad === "cafe-tostado-honey") return "cafeTostadoHoney";
+        if (item.calidad === "cafe-tostado-lavado") return "cafeTostadoLavado";
+        // El valor "cafe-tostado" corresponde a registros antiguos donde
+        // todavía no se había especificado el proceso de tostión. No se
+        // asigna automáticamente a Natural, Honey o Lavado.
+        if (item.calidad === "cafe-tostado") return "otros";
+        // Los registros antiguos que usaban "cafe-verde" no permiten saber
+        // si eran cereza, pergamino o pasilla, por lo que se muestran en Otros.
+        return "otros";
+      }
+
+      if (item.producto === "huevos") return "huevos";
+      return "otros";
+    }
+
+    function obtenerTextoCategoriaProduccion(categoria) {
+      const nombres = {
+        cafeCereza: "Café cereza",
+        cafePergamino: "Café pergamino",
+        cafePasilla: "Café pasilla",
+        cafeTostadoNatural: "Café tostado natural",
+        cafeTostadoHoney: "Café tostado Honey",
+        cafeTostadoLavado: "Café tostado lavado",
+        platanoPrimera: "Plátano de primera",
+        platanoSegunda: "Plátano de segunda",
+        huevos: "Huevos",
+        otros: "Otros"
+      };
+      return nombres[categoria] || "Otros";
+    }
+
+    function actualizarResumenProduccion() {
+      asegurarMesInicial("mesResumenProduccion");
+      const mes = document.getElementById("mesResumenProduccion").value;
+      const registros = registrosDelMes(produccion, mes);
+      const categorias = {
+        cafeCereza: [],
+        cafePergamino: [],
+        cafePasilla: [],
+        cafeTostadoNatural: [],
+        cafeTostadoHoney: [],
+        cafeTostadoLavado: [],
+        platanoPrimera: [],
+        platanoSegunda: [],
+        huevos: [],
+        otros: []
+      };
+
+      registros.forEach(function(item) {
+        const categoria = obtenerCategoriaProduccion(item);
+        categorias[categoria].push(item);
+      });
+
+      document.getElementById("totalCafeCereza").textContent = formatearCantidadPorUnidad(categorias.cafeCereza);
+      document.getElementById("totalCafePergamino").textContent = formatearCantidadPorUnidad(categorias.cafePergamino);
+      document.getElementById("totalCafePasilla").textContent = formatearCantidadPorUnidad(categorias.cafePasilla);
+      document.getElementById("totalCafeTostadoNatural").textContent = formatearCantidadPorUnidad(categorias.cafeTostadoNatural);
+      document.getElementById("totalCafeTostadoHoney").textContent = formatearCantidadPorUnidad(categorias.cafeTostadoHoney);
+      document.getElementById("totalCafeTostadoLavado").textContent = formatearCantidadPorUnidad(categorias.cafeTostadoLavado);
+      document.getElementById("totalPlatanoPrimera").textContent = formatearCantidadPorUnidad(categorias.platanoPrimera);
+      document.getElementById("totalPlatanoSegunda").textContent = formatearCantidadPorUnidad(categorias.platanoSegunda);
+      document.getElementById("totalHuevos").textContent = formatearCantidadPorUnidad(categorias.huevos);
+      document.getElementById("totalOtros").textContent = formatearCantidadPorUnidad(categorias.otros);
     }
 
     function mostrarProduccion() {
@@ -1703,6 +1988,7 @@
     /* ACTUALIZACIÓN GENERAL */
     function actualizarTodo() {
       actualizarResumen();
+      actualizarResumenMensualMovimientos();
       mostrarHistorial();
       mostrarUltimosMovimientos();
       actualizarProduccion();
@@ -1715,6 +2001,8 @@
     document.getElementById("fechaProduccion").value = fechaDeHoy();
     document.getElementById("fechaInventario").value = fechaDeHoy();
     document.getElementById("fechaNota").value = fechaDeHoy();
+    document.getElementById("mesResumenMovimientos").value = obtenerMesActual();
+    document.getElementById("mesResumenProduccion").value = obtenerMesActual();
 
     cambiarProducto();
     actualizarTodo();
