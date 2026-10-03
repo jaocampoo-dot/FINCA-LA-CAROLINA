@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Finca Cafetera</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f1f5f2;
+      color: #26352b;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .oculto {
+      display: none !important;
+    }
+
+    .pantalla-login {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background-image: url("https://img.magnific.com/fotos-premium/trabajadores-finca-cafetera-cosechando-paisaje-montanoso_890859-69533.jpg?semt=ais_hybrid&w=740&q=80");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+.login-tarjeta {
+    width: 100%;
+    max-width: 400px;
+
+    background: rgba(255, 255, 255, 0.82);
+
+    padding: 35px;
+    border-radius: 18px;
+
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+
+    text-align: center;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+    .login-tarjeta h1 {
+      color: #000301;
+    }
+
+    .encabezado {
+      background: #174d2a;
+      color: white;
+      padding: 18px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .encabezado h1 {
+      margin: 0;
+      font-size: 25px;
+    }
+
+    .boton-salir {
+      background: #fdfcfc;
+      color: rgb(12, 0, 0);
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+
+    .contenedor-principal {
+      display: flex;
+      min-height: calc(100vh - 80px);
+    }
+
+    .menu {
+      width: 245px;
+      background-image: url("https://img.magnific.com/fotos-premium/trabajadores-finca-cafetera-cosechando-paisaje-montanoso_890859-69533.jpg?semt=ais_hybrid&w=740&q=80");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 20px 12px;
+      border-right: 1px solid #dce5dd;
+    }
+
+    .menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: transparent;
+      padding: 13px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      color: #26352b;
+    }
+
+    .menu button:hover,
+    .menu button.activo {
+      background: #dcebdc;
+      color: #174d2a;
+      font-weight: bold;
+    }
+
+    .contenido {
+      flex: 1;
+      padding: 25px;
+      max-width: 1500px;
+    }
+
+    .seccion h2 {
+      margin-top: 0;
+      color: #174d2a;
+    }
+
+    .tarjetas-resumen {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .tarjeta-resumen {
+      padding: 22px;
+      border-radius: 14px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .tarjeta-resumen h3 {
+      margin-top: 0;
+      font-size: 17px;
+    }
+
+    .tarjeta-resumen p {
+      font-size: 25px;
+      font-weight: bold;
+      margin-bottom: 0;
+    }
+
+    .tarjeta-ventas {
+      background: #2e7d32;
+    }
+
+    .tarjeta-gastos {
+      background: #c62828;
+    }
+
+    .tarjeta-balance {
+      background: #1565c0;
+    }
+
+    .tarjeta {
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      margin-bottom: 22px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .formulario {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .campo {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .campo-completo {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: bold;
+      color: #34483a;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #bdcabe;
+      border-radius: 8px;
+      background: white;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #6a9d55;
+      border-color: #6a9d55;
+    }
+
+    .boton {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      color: white;
+      background: #276738;
+      font-weight: bold;
+    }
+
+    .boton:hover {
+      background: #1c4f2a;
+    }
+
+    .boton-rojo {
+      background: #b83232;
+    }
+
+    .boton-gris {
+      background: #68756c;
+    }
+
+    .boton-azul {
+      background: #1565c0;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .mensaje {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    .mensaje.error {
+      color: #b83232;
+    }
+
+    .mensaje.exito {
+      color: #276738;
+    }
+
+    .movimiento,
+    .produccion-item,
+    .inventario-item,
+    .nota-item {
+      background: #f7faf7;
+      padding: 15px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .movimiento {
+      border-left: 6px solid #276738;
+    }
+
+    .movimiento.venta {
+      border-left-color: #2e7d32;
+    }
+
+    .movimiento.gasto {
+      border-left-color: #c62828;
+    }
+
+    .produccion-item {
+      border-left: 6px solid #8a6d1d;
+    }
+
+    .inventario-item {
+      border-left: 6px solid #1565c0;
+    }
+
+    .nota-item {
+      border-left: 6px solid #7b1fa2;
+    }
+
+    .movimiento h4,
+    .produccion-item h4,
+    .inventario-item h4,
+    .nota-item h4 {
+      margin: 0 0 6px;
+    }
+
+    .movimiento p,
+    .produccion-item p,
+    .inventario-item p,
+    .nota-item p {
+      margin: 4px 0;
+    }
+
+    .monto-venta {
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    .monto-gasto {
+      color: #c62828;
+      font-weight: bold;
+    }
+
+    .boton-eliminar {
+      background: #b83232;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .boton-editar {
+      background: #1565c0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .boton-editar:hover {
+      background: #0d47a1;
+    }
+
+    .acciones-registro {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .sin-datos {
+      color: #68756c;
+      padding: 15px 0;
+    }
+
+    .resumen-produccion {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .mini-tarjeta {
+      background: #edf5e9;
+      border: 1px solid #d3e4cc;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .mini-tarjeta strong {
+      display: block;
+      color: #174d2a;
+      font-size: 20px;
+      margin-top: 8px;
+    }
+
+    .tabla-resumen {
+      overflow-x: auto;
+    }
+
+    .tabla-resumen table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #f7faf7;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tabla-resumen th,
+    .tabla-resumen td {
+      padding: 10px;
+      border-bottom: 1px solid #dce5dd;
+      text-align: left;
+    }
+
+    .tabla-resumen th {
+      background: #edf5e9;
+      color: #174d2a;
+    }
+
+    .tabla-resumen td:last-child,
+    .tabla-resumen th:last-child {
+      text-align: right;
+    }
+
+    .resumen-produccion-mensual {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: 950px) {
+      .contenedor-principal {
+        display: block;
+      }
+
+      .menu {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        border-right: none;
+        border-bottom: 1px solid #dce5dd;
+      }
+
+      .menu button {
+        min-width: max-content;
+        margin-bottom: 0;
+      }
+
+      .tarjetas-resumen,
+      .resumen-produccion {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .menu button {
+        background: rgba(255, 255, 255, 0.96);
+        color: #174d2a;
+        border: 1px solid #dce5dd;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+        font-weight: 600;
+      }
+
+      .menu button.activo {
+        background: #dcebdc;
+        color: #174d2a;
+        border-color: #b9d3b8;
+        font-weight: bold;
+      }
+
+      .menu button:active {
+        background: #c9dfc9;
+      }
+
+      .contenido {
+        padding: 15px;
+      }
+
+      .formulario {
+        grid-template-columns: 1fr;
+      }
+
+      .campo-completo {
+        grid-column: auto;
+      }
+
+      .tarjetas-resumen,
+      .resumen-produccion {
+        grid-template-columns: 1fr;
+      }
+
+      .movimiento,
+      .produccion-item,
+      .inventario-item,
+      .nota-item {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .login-tarjeta {
+        padding: 25px;
+      }
+    }
+
+    /* COPIAS DE SEGURIDAD */
+    .aviso-respaldo { border-left: 6px solid #276738; }
+    .aviso-respaldo.respaldo-atencion { border-left-color: #e0a100; background: #fff8e1; }
+    .aviso-respaldo.respaldo-alerta { border-left-color: #c62828; background: #fdecea; }
+    .aviso-respaldo h3 { margin-top: 0; }
+    .aviso-respaldo details { margin-top: 16px; }
+    .aviso-respaldo summary { cursor: pointer; font-weight: bold; color: #34483a; }
+    .copia-auto {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; flex-wrap: wrap;
+      background: #f7faf7; padding: 10px 12px; border-radius: 8px; margin-top: 8px;
+    }
+    .nota-respaldo { font-size: 14px; color: #5b6b60; margin-bottom: 0; }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN -->
+  <section id="pantallaLogin" class="pantalla-login">
+    <div class="login-tarjeta">
+      <h1>☕ Mi Finca Cafetera</h1>
+      <p>Ingresa para administrar la finca.</p>
+
+      <form onsubmit="iniciarSesion(event)">
+        <div class="campo">
+          <label for="usuario">Usuario</label>
+          <input type="text" id="usuario" required>
+        </div>
+        <br>
+        <div class="campo">
+          <label for="contrasena">Contraseña</label>
+          <input type="password" id="contrasena" required>
+        </div>
+        <br>
+        <button class="boton" type="submit">Iniciar sesión</button>
+        <p id="mensajeLogin" class="mensaje error"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- APLICACIÓN -->
+  <section id="aplicacion" class="oculto">
+
+    <header class="encabezado">
+      <h1>☕ Mi Finca Cafetera</h1>
+      <button class="boton-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+    </header>
+
+    <div class="contenedor-principal">
+
+      <!-- MENÚ -->
+      <nav class="menu">
+        <button class="activo" onclick="mostrarSeccion('inicio', this)">🏠 Inicio</button>
+        <button onclick="mostrarSeccion('movimientos', this)">💰 Ventas y gastos</button>
+        <button onclick="mostrarSeccion('produccion', this)">🌱 Producción</button>
+        <button onclick="mostrarSeccion('inventario', this)">📦 Inventario</button>
+        <button onclick="mostrarSeccion('notas', this)">📝 Bitácora</button>
+        <button onclick="mostrarSeccion('buscar', this)">🔎 Buscar por fecha</button>
+      </nav>
+
+      <main class="contenido">
+
+        <!-- INICIO -->
+        <section id="seccion-inicio" class="seccion">
+          <h2>Resumen de la finca</h2>
+
+          <!-- COPIAS DE SEGURIDAD -->
+          <div id="avisoRespaldo" class="tarjeta aviso-respaldo">
+            <h3>🛡️ Copias de seguridad</h3>
+            <p id="textoRespaldo"></p>
+            <div class="acciones">
+              <button class="boton boton-azul" onclick="descargarRespaldoCompleto()">💾 Descargar respaldo completo</button>
+              <button class="boton" id="botonCompartir" onclick="compartirRespaldo()">📲 Enviar por WhatsApp / Drive</button>
+              <button class="boton boton-gris" onclick="document.getElementById('inputRespaldoCompleto').click()">♻️ Restaurar respaldo</button>
+            </div>
+            <details>
+              <summary>Copias automáticas de este navegador</summary>
+              <div id="listaCopiasAuto"></div>
+            </details>
+            <p class="nota-respaldo">Guarda el archivo descargado en un lugar seguro (Drive, WhatsApp a ti mismo, correo o memoria USB). Las copias automáticas viven en este mismo navegador, así que no reemplazan al archivo descargado.</p>
+          </div>
+
+          <div class="tarjetas-resumen">
+            <div class="tarjeta-resumen tarjeta-ventas">
+              <h3>Total de ventas</h3>
+              <p id="ventas">$0</p>
+            </div>
+            <div class="tarjeta-resumen tarjeta-gastos">
+              <h3>Total de gastos</h3>
+              <p id="gastos">$0</p>
+            </div>
+            <div class="tarjeta-resumen tarjeta-balance">
+              <h3>Balance</h3>
+              <p id="balance">$0</p>
+            </div>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Últimos movimientos</h3>
+            <div id="ultimosMovimientos"></div>
+          </div>
+        </section>
+
+        <!-- VENTAS Y GASTOS -->
+        <section id="seccion-movimientos" class="seccion oculto">
+          <h2>Ventas, gastos, nómina y servicios</h2>
+
+          <div class="tarjeta">
+            <form onsubmit="registrarMovimiento(event)" class="formulario">
+              <div class="campo">
+                <label for="tipo">Tipo</label>
+                <select id="tipo" required>
+                  <option value="venta">Venta</option>
+                  <option value="gasto">Gasto</option>
+                </select>
+              </div>
+
+              <div class="campo">
+                <label for="categoriaMovimiento">Categoría</label>
+                <select id="categoriaMovimiento" required>
+                  <option value="venta-productos">Venta de productos</option>
+                  <option value="gasto-finca">Gasto de finca</option>
+                  <option value="nomina">Nómina</option>
+                  <option value="servicios">Servicios públicos</option>
+                  <option value="insumos">Insumos</option>
+                  <option value="transporte">Transporte</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+
+              <div class="campo">
+                <label for="fecha">Fecha</label>
+                <input type="date" id="fecha" required>
+              </div>
+
+              <div class="campo">
+                <label for="descripcion">Descripción</label>
+                <input type="text" id="descripcion" placeholder="Ejemplo: pago trabajador, venta de café..." required>
+              </div>
+
+              <div class="campo">
+                <label for="monto">Monto en pesos</label>
+                <input type="number" id="monto" min="1" step="1" required>
+              </div>
+
+              <div class="campo">
+                <label>&nbsp;</label>
+                <button id="botonGuardarMovimiento" class="boton" type="submit">Guardar movimiento</button>
+                <button id="botonCancelarMovimiento" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionMovimiento()">Cancelar edición</button>
+              </div>
+            </form>
+
+            <p id="mensajeMovimiento" class="mensaje"></p>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Resumen mensual de ventas y gastos</h3>
+            <div class="campo" style="max-width: 320px; margin-bottom: 18px;">
+              <label for="mesResumenMovimientos">Mes a consultar</label>
+              <input type="month" id="mesResumenMovimientos" onchange="actualizarResumenMensualMovimientos()">
+            </div>
+
+            <div class="tarjetas-resumen resumen-mensual-movimientos">
+              <div class="tarjeta-resumen tarjeta-ventas">
+                <h3>Ventas del mes</h3>
+                <p id="ventasMensuales">$0</p>
+              </div>
+              <div class="tarjeta-resumen tarjeta-gastos">
+                <h3>Gastos del mes</h3>
+                <p id="gastosMensuales">$0</p>
+              </div>
+              <div class="tarjeta-resumen tarjeta-balance">
+                <h3>Balance del mes</h3>
+                <p id="balanceMensual">$0</p>
+              </div>
+            </div>
+
+            <h4>Detalle por categoría</h4>
+            <div id="detalleMensualMovimientos" class="tabla-resumen"></div>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Historial de movimientos</h3>
+            <div id="historial"></div>
+
+            <div class="acciones">
+              <button class="boton boton-azul" onclick="exportarCSV()">
+                📥 Descargar movimientos (CSV)
+              </button>
+              
+              <input type="file" id="inputCSV" accept=".csv" class="oculto" onchange="importarCSV(event)">
+              
+              <button class="boton" onclick="document.getElementById('inputCSV').click()">
+                📤 Importar movimientos (CSV)
+              </button>
+
+              <button class="boton boton-azul" onclick="descargarRespaldoCompleto()">
+                💾 Descargar respaldo completo
+              </button>
+
+              <input type="file" id="inputRespaldoCompleto" accept=".json" class="oculto" onchange="restaurarRespaldoCompleto(event)">
+
+              <button class="boton" onclick="document.getElementById('inputRespaldoCompleto').click()">
+                ♻️ Restaurar respaldo completo
+              </button>
+
+          </div>
+          </div>
+        </section>
+
+        <!-- PRODUCCIÓN -->
+        <section id="seccion-produccion" class="seccion oculto">
+          <h2>Producción de la finca</h2>
+
+          <div class="tarjeta">
+            <form onsubmit="registrarProduccion(event)" class="formulario">
+              <div class="campo">
+                <label for="fechaProduccion">Fecha</label>
+                <input type="date" id="fechaProduccion" required>
+              </div>
+
+              <div class="campo">
+                <label for="producto">Producto</label>
+                <select id="producto" onchange="cambiarProducto()" required>
+                  <option value="platano">Plátano</option>
+                  <option value="cafe">Café</option>
+                  <option value="huevos">Huevos</option>
+                  <option value="limon">Limón</option>
+                  <option value="naranja">Naranja</option>
+                  <option value="otros">Otros</option>
+                </select>
+              </div>
+
+              <div class="campo">
+                <label for="calidad">Tipo o calidad</label>
+                <select id="calidad">
+                  <option value="primera">Primera</option>
+                  <option value="segunda">Segunda</option>
+                </select>
+              </div>
+
+              <div class="campo">
+                <label for="cantidad">Cantidad producida</label>
+                <input type="number" id="cantidad" min="0.01" step="0.01" required>
+              </div>
+
+              <div class="campo">
+                <label for="unidad">Unidad</label>
+                <select id="unidad">
+                  <option value="kg">Kilogramos</option>
+                </select>
+              </div>
+
+              <div id="campoOtro" class="campo oculto">
+                <label for="nombreOtro">Nombre del otro producto</label>
+                <input type="text" id="nombreOtro" placeholder="Ejemplo: Yuca">
+              </div>
+
+              <div class="campo campo-completo">
+                <label for="detalleProduccion">Detalle o comentario</label>
+                <textarea id="detalleProduccion" placeholder="Ejemplo: producción del lote 2..."></textarea>
+              </div>
+
+              <div class="campo">
+                <button id="botonGuardarProduccion" class="boton" type="submit">Guardar producción</button>
+                <button id="botonCancelarProduccion" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionProduccion()">Cancelar edición</button>
+              </div>
+            </form>
+
+            <p id="mensajeProduccion" class="mensaje"></p>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Resumen mensual de producción</h3>
+            <div class="campo" style="max-width: 320px; margin-bottom: 18px;">
+              <label for="mesResumenProduccion">Mes a consultar</label>
+              <input type="month" id="mesResumenProduccion" onchange="actualizarResumenProduccion()">
+            </div>
+
+            <div class="resumen-produccion resumen-produccion-mensual">
+              <div class="mini-tarjeta">
+                Café cereza <strong id="totalCafeCereza">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Café pergamino <strong id="totalCafePergamino">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Café pasilla <strong id="totalCafePasilla">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Café tostado natural <strong id="totalCafeTostadoNatural">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Café tostado Honey <strong id="totalCafeTostadoHoney">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Café tostado lavado <strong id="totalCafeTostadoLavado">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Plátano de primera <strong id="totalPlatanoPrimera">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Plátano de segunda <strong id="totalPlatanoSegunda">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Huevos <strong id="totalHuevos">0</strong>
+              </div>
+              <div class="mini-tarjeta">
+                Otros <strong id="totalOtros">0</strong>
+              </div>
+            </div>
+            <p class="sin-datos">Las cantidades se mantienen separadas por unidad (kg, libras, medias libras, cubetas, etc.). No se convierten ni se mezclan unidades diferentes.</p>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Historial de producción</h3>
+            <div id="historialProduccion"></div>
+
+            <div class="acciones">
+              <button class="boton boton-rojo" onclick="borrarTodaLaProduccion()">
+                Borrar toda la producción
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- INVENTARIO -->
+        <section id="seccion-inventario" class="seccion oculto">
+          <h2>Inventario de la finca</h2>
+
+          <div class="tarjeta">
+            <form onsubmit="registrarInventario(event)" class="formulario">
+              <div class="campo">
+                <label for="nombreInventario">Producto o elemento</label>
+                <input type="text" id="nombreInventario" placeholder="Ejemplo: Abono, machete, fertilizante..." required>
+              </div>
+
+              <div class="campo">
+                <label for="cantidadInventario">Cantidad</label>
+                <input type="number" id="cantidadInventario" min="0" step="0.01" required>
+              </div>
+
+              <div class="campo">
+                <label for="unidadInventario">Unidad</label>
+                <select id="unidadInventario">
+                  <option value="unidades">Unidades</option>
+                  <option value="kg">Kilogramos</option>
+                  <option value="bultos">Bultos</option>
+                  <option value="litros">Litros</option>
+                  <option value="cajas">Cajas</option>
+                  <option value="sacos">Sacos</option>
+                </select>
+              </div>
+
+              <div class="campo">
+                <label for="fechaInventario">Fecha de actualización</label>
+                <input type="date" id="fechaInventario" required>
+              </div>
+
+              <div class="campo campo-completo">
+                <label for="detalleInventario">Detalle</label>
+                <textarea id="detalleInventario" placeholder="Ejemplo: quedan 3 bultos de abono..."></textarea>
+              </div>
+
+              <div class="campo">
+                <button id="botonGuardarInventario" class="boton" type="submit">Guardar inventario</button>
+                <button id="botonCancelarInventario" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionInventario()">Cancelar edición</button>
+              </div>
+            </form>
+
+            <p id="mensajeInventario" class="mensaje"></p>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Inventario actual</h3>
+            <div id="historialInventario"></div>
+          </div>
+        </section>
+
+        <!-- BITÁCORA -->
+        <section id="seccion-notas" class="seccion oculto">
+          <h2>Bitácora de la finca</h2>
+
+          <div class="tarjeta">
+            <form onsubmit="registrarNota(event)" class="formulario">
+              <div class="campo">
+                <label for="fechaNota">Fecha</label>
+                <input type="date" id="fechaNota" required>
+              </div>
+
+              <div class="campo">
+                <label for="tituloNota">Título</label>
+                <input type="text" id="tituloNota" placeholder="Ejemplo: Abono del café" required>
+              </div>
+
+              <div class="campo campo-completo">
+                <label for="textoNota">Nota</label>
+                <textarea id="textoNota" placeholder="Ejemplo: Se abonó el lote 1 y se fumigó..." required></textarea>
+              </div>
+
+              <div class="campo">
+                <button id="botonGuardarNota" class="boton" type="submit">Guardar nota</button>
+                <button id="botonCancelarNota" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionNota()">Cancelar edición</button>
+              </div>
+            </form>
+
+            <p id="mensajeNota" class="mensaje"></p>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Notas guardadas</h3>
+            <div id="historialNotas"></div>
+          </div>
+        </section>
+
+        <!-- BUSCADOR -->
+        <section id="seccion-buscar" class="seccion oculto">
+          <h2>Buscar movimientos por fecha</h2>
+
+          <div class="tarjeta">
+            <div class="formulario">
+              <div class="campo">
+                <label for="buscarFecha">Fecha</label>
+                <input type="date" id="buscarFecha">
+              </div>
+
+              <div class="campo">
+                <label>&nbsp;</label>
+                <button class="boton" onclick="buscarPorFecha()">Buscar</button>
+              </div>
+            </div>
+
+            <div class="acciones">
+              <button class="boton boton-gris" onclick="mostrarTodosLosMovimientos()">
+                Mostrar todos
+              </button>
+            </div>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Resultados</h3>
+            <div id="resultadosBusqueda"></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </section>
+
+  <script>
+    const USUARIO_CORRECTO = "efrain";
+    const CONTRASENA_CORRECTA = "9315";
+
+    let sesionActiva = false;
+
+    /* ALMACENAMIENTO SEGURO */
+    const CLAVE_ULTIMO_RESPALDO = "ultimoRespaldoFinca";
+    const CLAVE_CAMBIOS = "cambiosSinRespaldoFinca";
+    const CLAVE_COPIAS_AUTO = "copiasAutomaticasFinca";
+    const MAX_COPIAS_AUTO = 5;
+    const clavesDanadas = [];
+
+    // Pide al navegador que no borre los datos de la app por falta de espacio.
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().catch(function() {});
+    }
+
+    function cargarLista(clave) {
+      try {
+        const dato = JSON.parse(localStorage.getItem(clave));
+        return Array.isArray(dato) ? dato : [];
+      } catch (error) {
+        // Si el dato está dañado, se conserva aparte para poder recuperarlo y se empieza con lista vacía.
+        try {
+          localStorage.setItem(clave + "_danado_" + Date.now(), localStorage.getItem(clave));
+        } catch (e) {}
+        clavesDanadas.push(clave);
+        return [];
+      }
+    }
+
+    function leerNumero(clave) {
+      try {
+        const n = Number(localStorage.getItem(clave));
+        return Number.isFinite(n) ? n : 0;
+      } catch (error) {
+        return 0;
+      }
+    }
+
+    // Guarda y cuenta los cambios hechos desde el último respaldo descargado.
+    function guardarLocal(clave, datos) {
+      try {
+        localStorage.setItem(clave, JSON.stringify(datos));
+        localStorage.setItem(CLAVE_CAMBIOS, String(leerNumero(CLAVE_CAMBIOS) + 1));
+        return true;
+      } catch (error) {
+        alert("⚠️ No se pudo guardar en este navegador (almacenamiento lleno o bloqueado). Descarga un respaldo ahora para no perder información.");
+        return false;
+      }
+    }
+
+    let movimientos = cargarLista("movimientosFinca");
+    let produccion = cargarLista("produccionFinca");
+    let inventario = cargarLista("inventarioFinca");
+    let notas = cargarLista("notasFinca");
+
+    // IDs de los registros que se están editando.
+    let idMovimientoEditando = null;
+    let idProduccionEditando = null;
+    let idInventarioEditando = null;
+    let idNotaEditando = null;
+
+    function formatoPesos(valor) {
+      return new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        maximumFractionDigits: 0
+      }).format(valor);
+    }
+
+    function fechaDeHoy() {
+      const hoy = new Date();
+      const año = hoy.getFullYear();
+      const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+      const dia = String(hoy.getDate()).padStart(2, "0");
+      return `${año}-${mes}-${dia}`;
+    }
+
+    function escaparHTML(texto) {
+      return String(texto)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    /* LOGIN */
+    function iniciarSesion(evento) {
+      evento.preventDefault();
+      const usuario = document.getElementById("usuario").value.trim();
+      const contrasena = document.getElementById("contrasena").value;
+      const mensaje = document.getElementById("mensajeLogin");
+
+      if (usuario === USUARIO_CORRECTO && contrasena === CONTRASENA_CORRECTA) {
+        sesionActiva = true;
+        document.getElementById("pantallaLogin").classList.add("oculto");
+        document.getElementById("aplicacion").classList.remove("oculto");
+        mensaje.textContent = "";
+        if (clavesDanadas.length > 0) {
+          alert("⚠️ Algunos datos guardados estaban dañados y no se pudieron leer. Se conservó una copia aparte en el navegador. Si tienes un respaldo, usa 'Restaurar respaldo'.");
+          clavesDanadas.length = 0;
+        }
+        crearCopiaDiaria();
+        actualizarTodo();
+      } else {
+        mensaje.textContent = "Usuario o contraseña incorrectos.";
+      }
+    }
+
+    function cerrarSesion() {
+      const pendientes = leerNumero(CLAVE_CAMBIOS);
+      if (hayDatos() && pendientes > 0 &&
+          confirm("Tienes " + pendientes + " cambios sin respaldar. ¿Quieres descargar un respaldo antes de salir?")) {
+        descargarRespaldoCompleto();
+      }
+      sesionActiva = false;
+      document.getElementById("aplicacion").classList.add("oculto");
+      document.getElementById("pantallaLogin").classList.remove("oculto");
+      document.getElementById("usuario").value = "";
+      document.getElementById("contrasena").value = "";
+    }
+
+    /* MENÚ */
+    function mostrarSeccion(nombre, boton) {
+      document.querySelectorAll(".seccion").forEach(function(seccion) {
+        seccion.classList.add("oculto");
+      });
+
+      document.getElementById("seccion-" + nombre).classList.remove("oculto");
+
+      document.querySelectorAll(".menu button").forEach(function(item) {
+        item.classList.remove("activo");
+      });
+
+      boton.classList.add("activo");
+      actualizarTodo();
+    }
+
+    /* MOVIMIENTOS */
+    function guardarMovimientos() {
+      guardarLocal("movimientosFinca", movimientos);
+    }
+
+    function registrarMovimiento(evento) {
+      evento.preventDefault();
+      const tipo = document.getElementById("tipo").value;
+      const categoria = document.getElementById("categoriaMovimiento").value;
+      const fecha = document.getElementById("fecha").value;
+      const descripcion = document.getElementById("descripcion").value.trim();
+      const monto = Number(document.getElementById("monto").value);
+      const mensaje = document.getElementById("mensajeMovimiento");
+
+      if (!fecha || !descripcion || monto <= 0) {
+        mensaje.textContent = "Completa todos los campos correctamente.";
+        mensaje.className = "mensaje error";
+        return;
+      }
+
+      if (idMovimientoEditando !== null) {
+        const indice = movimientos.findIndex(function(item) {
+          return item.id === idMovimientoEditando;
+        });
+
+        if (indice !== -1) {
+          movimientos[indice] = {
+            id: idMovimientoEditando,
+            tipo: tipo,
+            categoria: categoria,
+            fecha: fecha,
+            descripcion: descripcion,
+            monto: monto
+          };
+        }
+
+        guardarMovimientos();
+        cancelarEdicionMovimiento();
+        mensaje.textContent = "Movimiento actualizado correctamente.";
+        mensaje.className = "mensaje exito";
+        actualizarTodo();
+        return;
+      }
+
+      movimientos.push({
+        id: Date.now(),
+        tipo: tipo,
+        categoria: categoria,
+        fecha: fecha,
+        descripcion: descripcion,
+        monto: monto
+      });
+
+      guardarMovimientos();
+
+      document.getElementById("descripcion").value = "";
+      document.getElementById("monto").value = "";
+
+      mensaje.textContent = "Movimiento guardado correctamente.";
+      mensaje.className = "mensaje exito";
+
+      actualizarTodo();
+    }
+
+    function editarMovimiento(id) {
+      const movimiento = movimientos.find(function(item) {
+        return item.id === id;
+      });
+      if (!movimiento) return;
+
+      idMovimientoEditando = id;
+      document.getElementById("tipo").value = movimiento.tipo;
+      document.getElementById("categoriaMovimiento").value = movimiento.categoria || "otro";
+      document.getElementById("fecha").value = movimiento.fecha;
+      document.getElementById("descripcion").value = movimiento.descripcion || "";
+      document.getElementById("monto").value = movimiento.monto;
+      document.getElementById("botonGuardarMovimiento").textContent = "Guardar cambios";
+      document.getElementById("botonCancelarMovimiento").classList.remove("oculto");
+      document.getElementById("mensajeMovimiento").textContent = "Editando este movimiento.";
+      document.getElementById("mensajeMovimiento").className = "mensaje";
+      document.getElementById("descripcion").focus();
+    }
+
+    function cancelarEdicionMovimiento() {
+      idMovimientoEditando = null;
+      document.getElementById("botonGuardarMovimiento").textContent = "Guardar movimiento";
+      document.getElementById("botonCancelarMovimiento").classList.add("oculto");
+      document.getElementById("descripcion").value = "";
+      document.getElementById("monto").value = "";
+      document.getElementById("fecha").value = fechaDeHoy();
+    }
+
+    function actualizarResumen() {
+      let totalVentas = 0;
+      let totalGastos = 0;
+
+      movimientos.forEach(function(movimiento) {
+        if (movimiento.tipo === "venta") {
+          totalVentas += Number(movimiento.monto);
+        }
+
+        if (movimiento.tipo === "gasto") {
+          totalGastos += Number(movimiento.monto);
+        }
+      });
+
+      document.getElementById("ventas").textContent = formatoPesos(totalVentas);
+      document.getElementById("gastos").textContent = formatoPesos(totalGastos);
+      document.getElementById("balance").textContent = formatoPesos(totalVentas - totalGastos);
+    }
+
+    function obtenerNombreCategoriaMovimiento(categoria) {
+      const nombres = {
+        "venta-productos": "Venta de productos",
+        "gasto-finca": "Gasto de finca",
+        "nomina": "Nómina",
+        "servicios": "Servicios públicos",
+        "insumos": "Insumos",
+        "transporte": "Transporte",
+        "otro": "Otro"
+      };
+      return nombres[categoria] || categoria || "General";
+    }
+
+    function actualizarResumenMensualMovimientos() {
+      asegurarMesInicial("mesResumenMovimientos");
+      const mes = document.getElementById("mesResumenMovimientos").value;
+      const registros = registrosDelMes(movimientos, mes);
+      let totalVentas = 0;
+      let totalGastos = 0;
+      const categorias = {};
+
+      registros.forEach(function(movimiento) {
+        const monto = Number(movimiento.monto) || 0;
+        if (movimiento.tipo === "venta") totalVentas += monto;
+        if (movimiento.tipo === "gasto") totalGastos += monto;
+
+        const clave = movimiento.categoria || "otro";
+        if (!categorias[clave]) {
+          categorias[clave] = { ventas: 0, gastos: 0 };
+        }
+        if (movimiento.tipo === "venta") categorias[clave].ventas += monto;
+        if (movimiento.tipo === "gasto") categorias[clave].gastos += monto;
+      });
+
+      document.getElementById("ventasMensuales").textContent = formatoPesos(totalVentas);
+      document.getElementById("gastosMensuales").textContent = formatoPesos(totalGastos);
+      document.getElementById("balanceMensual").textContent = formatoPesos(totalVentas - totalGastos);
+
+      const contenedor = document.getElementById("detalleMensualMovimientos");
+      const claves = Object.keys(categorias).sort(function(a, b) {
+        return obtenerNombreCategoriaMovimiento(a).localeCompare(obtenerNombreCategoriaMovimiento(b), "es");
+      });
+
+      if (claves.length === 0) {
+        contenedor.innerHTML = '<p class="sin-datos">No hay movimientos registrados en este mes.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Ventas</th>
+              <th>Gastos</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${claves.map(function(clave) {
+              const datos = categorias[clave];
+              return `
+                <tr>
+                  <td>${escaparHTML(obtenerNombreCategoriaMovimiento(clave))}</td>
+                  <td>${formatoPesos(datos.ventas)}</td>
+                  <td>${formatoPesos(datos.gastos)}</td>
+                  <td>${formatoPesos(datos.ventas - datos.gastos)}</td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function ordenarPorFecha(lista) {
+      return [...lista].sort(function(a, b) {
+        return String(b.fecha).localeCompare(String(a.fecha));
+      });
+    }
+
+    function crearHTMLMovimiento(movimiento) {
+      const esVenta = movimiento.tipo === "venta";
+
+      return `
+        <div class="movimiento ${esVenta ? "venta" : "gasto"}">
+          <div>
+            <h4>${esVenta ? "Venta" : "Gasto"}</h4>
+            <p><strong>Fecha:</strong> ${escaparHTML(movimiento.fecha)}</p>
+            <p><strong>Categoría:</strong> ${escaparHTML(movimiento.categoria || "General")}</p>
+            <p>${escaparHTML(movimiento.descripcion)}</p>
+            <p class="${esVenta ? "monto-venta" : "monto-gasto"}">
+              ${esVenta ? "+" : "-"} ${formatoPesos(Number(movimiento.monto))}
+            </p>
+          </div>
+
+          <div class="acciones-registro">
+            <button class="boton-editar" onclick="editarMovimiento(${movimiento.id})">✏️ Editar</button>
+            <button class="boton-eliminar" onclick="eliminarMovimiento(${movimiento.id})">Eliminar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function mostrarHistorial(lista = movimientos) {
+      const historial = document.getElementById("historial");
+      const ordenados = ordenarPorFecha(lista);
+
+      if (ordenados.length === 0) {
+        historial.innerHTML = '<p class="sin-datos">No hay movimientos registrados.</p>';
+        return;
+      }
+
+      historial.innerHTML = ordenados.map(crearHTMLMovimiento).join("");
+    }
+
+    function mostrarUltimosMovimientos() {
+      const contenedor = document.getElementById("ultimosMovimientos");
+      const ultimos = ordenarPorFecha(movimientos).slice(0, 5);
+
+      if (ultimos.length === 0) {
+        contenedor.innerHTML = '<p class="sin-datos">No hay movimientos.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = ultimos.map(crearHTMLMovimiento).join("");
+    }
+
+    function eliminarMovimiento(id) {
+      if (!confirm("¿Deseas eliminar este movimiento?")) return;
+
+      movimientos = movimientos.filter(function(item) {
+        return item.id !== id;
+      });
+
+      guardarMovimientos();
+      actualizarTodo();
+    }
+
+    function borrarTodosLosMovimientos() {
+      if (!confirm("¿Deseas borrar todos los movimientos?")) return;
+
+      crearCopiaAutomatica("Antes de borrar todos los movimientos");
+      movimientos = [];
+      guardarMovimientos();
+      actualizarTodo();
+    }
+
+    /* ===== COPIAS DE SEGURIDAD ===== */
+    function hayDatos() {
+      return movimientos.length + produccion.length + inventario.length + notas.length > 0;
+    }
+
+    function formatearFechaHora(iso) {
+      const fecha = new Date(iso);
+      return isNaN(fecha) ? "fecha desconocida" : fecha.toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
+    }
+
+    function resumenDatos(d) {
+      return d.movimientos.length + " movimientos, " + d.produccion.length + " registros de producción, " +
+             d.inventario.length + " de inventario y " + d.notas.length + " notas";
+    }
+
+    function construirRespaldo() {
+      return {
+        aplicacion: "Mi Finca Cafetera",
+        version: 3,
+        fechaRespaldo: new Date().toISOString(),
+        conteo: {
+          movimientos: movimientos.length,
+          produccion: produccion.length,
+          inventario: inventario.length,
+          notas: notas.length
+        },
+        movimientos: movimientos,
+        produccion: produccion,
+        inventario: inventario,
+        notas: notas
+      };
+    }
+
+    function descargarArchivo(contenido, nombre, tipo) {
+      const blob = new Blob([contenido], { type: tipo });
+      const enlace = document.createElement("a");
+      enlace.href = URL.createObjectURL(blob);
+      enlace.download = nombre;
+      document.body.appendChild(enlace);
+      enlace.click();
+      document.body.removeChild(enlace);
+      setTimeout(function() { URL.revokeObjectURL(enlace.href); }, 2000);
+    }
+
+    function marcarRespaldoHecho() {
+      try {
+        localStorage.setItem(CLAVE_ULTIMO_RESPALDO, new Date().toISOString());
+        localStorage.setItem(CLAVE_CAMBIOS, "0");
+      } catch (error) {}
+      actualizarAvisoRespaldo();
+    }
+
+    function descargarRespaldoCompleto() {
+      if (!hayDatos()) {
+        alert("Todavía no hay datos para respaldar.");
+        return;
+      }
+      descargarArchivo(
+        JSON.stringify(construirRespaldo(), null, 2),
+        "respaldo_completo_finca_" + fechaDeHoy() + ".json",
+        "application/json;charset=utf-8"
+      );
+      marcarRespaldoHecho();
+    }
+
+    // Permite enviar el respaldo por WhatsApp, Drive, correo, etc. desde el celular.
+    async function compartirRespaldo() {
+      if (!hayDatos()) {
+        alert("Todavía no hay datos para respaldar.");
+        return;
+      }
+      const nombre = "respaldo_completo_finca_" + fechaDeHoy() + ".json";
+      const archivo = new File([JSON.stringify(construirRespaldo(), null, 2)], nombre, { type: "application/json" });
+
+      if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+        try {
+          await navigator.share({ files: [archivo], title: "Respaldo Mi Finca Cafetera" });
+          marcarRespaldoHecho();
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            alert("No se pudo compartir el archivo. Usa 'Descargar respaldo completo'.");
+          }
+        }
+      } else {
+        alert("Este navegador no permite compartir archivos. Se descargará el respaldo.");
+        descargarRespaldoCompleto();
+      }
+    }
+
+    /* Copias automáticas dentro del navegador (red de seguridad, no reemplazan al archivo descargado) */
+    function leerCopiasAuto() {
+      try {
+        const copias = JSON.parse(localStorage.getItem(CLAVE_COPIAS_AUTO));
+        return Array.isArray(copias) ? copias : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function crearCopiaAutomatica(motivo) {
+      if (!hayDatos()) return;
+      let copias = leerCopiasAuto();
+      copias.unshift({
+        fecha: new Date().toISOString(),
+        dia: fechaDeHoy(),
+        motivo: motivo,
+        datos: construirRespaldo()
+      });
+      copias = copias.slice(0, MAX_COPIAS_AUTO);
+
+      // Si no cabe, se descartan las copias más antiguas.
+      while (copias.length > 0) {
+        try {
+          localStorage.setItem(CLAVE_COPIAS_AUTO, JSON.stringify(copias));
+          return;
+        } catch (error) {
+          copias.pop();
+        }
+      }
+    }
+
+    function crearCopiaDiaria() {
+      const copias = leerCopiasAuto();
+      const hayDeHoy = copias.some(function(c) {
+        return c && c.dia === fechaDeHoy() && c.motivo === "Copia diaria automática";
+      });
+      if (!hayDeHoy) crearCopiaAutomatica("Copia diaria automática");
+    }
+
+    function mostrarCopiasAutomaticas() {
+      const contenedor = document.getElementById("listaCopiasAuto");
+      if (!contenedor) return;
+      const copias = leerCopiasAuto();
+
+      if (copias.length === 0) {
+        contenedor.innerHTML = '<p class="sin-datos">Aún no hay copias automáticas. Se crean una vez al día al iniciar sesión y antes de restaurar, importar o borrar datos.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = copias.map(function(copia, indice) {
+        const d = copia.datos || {};
+        const texto = Array.isArray(d.movimientos) ? resumenDatos({
+          movimientos: d.movimientos, produccion: d.produccion || [], inventario: d.inventario || [], notas: d.notas || []
+        }) : "contenido no disponible";
+        return `
+          <div class="copia-auto">
+            <div>
+              <strong>${escaparHTML(formatearFechaHora(copia.fecha))}</strong> — ${escaparHTML(copia.motivo || "")}<br>
+              <small>${escaparHTML(texto)}</small>
+            </div>
+            <button class="boton boton-gris" onclick="restaurarCopiaAutomatica(${indice})">Restaurar</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function actualizarAvisoRespaldo() {
+      const caja = document.getElementById("avisoRespaldo");
+      const texto = document.getElementById("textoRespaldo");
+      if (!caja || !texto) return;
+
+      const botonCompartir = document.getElementById("botonCompartir");
+      if (botonCompartir && !navigator.share) botonCompartir.classList.add("oculto");
+
+      let ultimo = null;
+      try { ultimo = localStorage.getItem(CLAVE_ULTIMO_RESPALDO); } catch (error) {}
+      const cambios = leerNumero(CLAVE_CAMBIOS);
+      const dias = ultimo ? Math.floor((Date.now() - new Date(ultimo).getTime()) / 86400000) : null;
+
+      caja.classList.remove("respaldo-atencion", "respaldo-alerta");
+
+      if (!hayDatos()) {
+        texto.textContent = "Aún no hay datos que respaldar. Cuando registres información, aquí verás el estado de tu copia de seguridad.";
+      } else if (!ultimo) {
+        caja.classList.add("respaldo-alerta");
+        texto.textContent = "⚠️ Todavía no has descargado ningún respaldo. Si se borra el historial del navegador o cambias de celular, perderías toda la información. Descarga uno ahora.";
+      } else if ((dias >= 7 && cambios > 0) || cambios >= 15) {
+        caja.classList.add("respaldo-atencion");
+        texto.textContent = "⏰ Tu último respaldo fue el " + formatearFechaHora(ultimo) + " (hace " + dias + " días) y has hecho " + cambios + " cambios desde entonces. Conviene descargar uno nuevo.";
+      } else {
+        texto.textContent = "✅ Último respaldo: " + formatearFechaHora(ultimo) + ". Cambios desde entonces: " + cambios + ".";
+      }
+    }
+
+    /* Limpieza y validación de datos importados */
+    function normalizarLista(lista) {
+      const usados = new Set();
+      const resultado = [];
+      (Array.isArray(lista) ? lista : []).forEach(function(item, i) {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return;
+        let id = Number(item.id);
+        if (!Number.isFinite(id) || usados.has(id)) {
+          id = Date.now() + i + Math.floor(Math.random() * 1000);
+          while (usados.has(id)) id++;
+        }
+        usados.add(id);
+        resultado.push(Object.assign({}, item, { id: id }));
+      });
+      return resultado;
+    }
+
+    function limpiarMovimientos(lista) {
+      const validos = [];
+      normalizarLista(lista).forEach(function(item) {
+        const tipo = String(item.tipo || "").toLowerCase().trim();
+        const fecha = String(item.fecha || "").trim();
+        const monto = Number(item.monto);
+        const fechaValida = /^\d{4}-\d{2}-\d{2}$/.test(fecha) && !isNaN(new Date(fecha));
+        if ((tipo !== "venta" && tipo !== "gasto") || !fechaValida || !Number.isFinite(monto) || monto < 0) return;
+        validos.push({
+          id: item.id,
+          tipo: tipo,
+          categoria: String(item.categoria || "otro"),
+          fecha: fecha,
+          descripcion: String(item.descripcion || ""),
+          monto: monto
+        });
+      });
+      const total = Array.isArray(lista) ? lista.length : 0;
+      return { validos: validos, descartados: total - validos.length };
+    }
+
+    function aplicarDatos(nuevos) {
+      movimientos = nuevos.movimientos;
+      produccion = nuevos.produccion;
+      inventario = nuevos.inventario;
+      notas = nuevos.notas;
+
+      idMovimientoEditando = null;
+      idProduccionEditando = null;
+      idInventarioEditando = null;
+      idNotaEditando = null;
+
+      guardarMovimientos();
+      guardarProduccion();
+      guardarInventario();
+      guardarNotas();
+      try { localStorage.setItem(CLAVE_CAMBIOS, "0"); } catch (error) {}
+      actualizarTodo();
+    }
+
+    function restaurarRespaldoCompleto(evento) {
+      const entrada = evento.target;
+      const archivo = entrada.files[0];
+      if (!archivo) return;
+
+      const lector = new FileReader();
+
+      lector.onload = function(e) {
+        try {
+          const respaldo = JSON.parse(e.target.result);
+          const claves = ["movimientos", "produccion", "inventario", "notas"];
+
+          if (!respaldo || typeof respaldo !== "object" ||
+              !claves.some(function(k) { return Array.isArray(respaldo[k]); })) {
+            throw new Error("Formato no válido");
+          }
+
+          const limpio = limpiarMovimientos(respaldo.movimientos);
+          const nuevos = {
+            movimientos: limpio.validos,
+            produccion: normalizarLista(respaldo.produccion),
+            inventario: normalizarLista(respaldo.inventario),
+            notas: normalizarLista(respaldo.notas)
+          };
+
+          const fechaTexto = respaldo.fechaRespaldo ? " del " + formatearFechaHora(respaldo.fechaRespaldo) : "";
+          let mensaje = "Respaldo" + fechaTexto + ":\n" + resumenDatos(nuevos) + ".\n\n";
+          if (limpio.descartados > 0) {
+            mensaje += "Se omitirán " + limpio.descartados + " movimientos con datos incorrectos.\n\n";
+          }
+          mensaje += "Esto REEMPLAZARÁ los datos actuales (" + resumenDatos({ movimientos: movimientos, produccion: produccion, inventario: inventario, notas: notas }) + ").\n";
+          mensaje += "Antes se guardará una copia automática de lo actual por si te arrepientes.\n\n¿Deseas continuar?";
+
+          if (!confirm(mensaje)) return;
+
+          crearCopiaAutomatica("Antes de restaurar un respaldo");
+          aplicarDatos(nuevos);
+          alert("¡Respaldo restaurado correctamente!");
+        } catch (error) {
+          alert("No se pudo restaurar el respaldo. Verifica que sea un archivo JSON generado por esta aplicación. Tus datos actuales no fueron modificados.");
+        } finally {
+          entrada.value = "";
+        }
+      };
+
+      lector.readAsText(archivo, "UTF-8");
+    }
+
+    function restaurarCopiaAutomatica(indice) {
+      const copia = leerCopiasAuto()[indice];
+      if (!copia || !copia.datos) {
+        alert("No se pudo leer esa copia automática.");
+        return;
+      }
+
+      const limpio = limpiarMovimientos(copia.datos.movimientos);
+      const nuevos = {
+        movimientos: limpio.validos,
+        produccion: normalizarLista(copia.datos.produccion),
+        inventario: normalizarLista(copia.datos.inventario),
+        notas: normalizarLista(copia.datos.notas)
+      };
+
+      if (!confirm("Copia del " + formatearFechaHora(copia.fecha) + ":\n" + resumenDatos(nuevos) +
+                   ".\n\nEsto reemplazará los datos actuales (se guardará antes una copia de lo actual). ¿Continuar?")) return;
+
+      crearCopiaAutomatica("Antes de restaurar una copia automática");
+      aplicarDatos(nuevos);
+      alert("Copia restaurada correctamente.");
+    }
+
+    /* CSV (solo movimientos) */
+    function celdaCSV(valor) {
+      return '"' + String(valor === undefined || valor === null ? "" : valor).replaceAll('"', '""') + '"';
+    }
+
+    function exportarCSV() {
+      if (movimientos.length === 0) {
+        alert("No hay movimientos registrados para exportar.");
+        return;
+      }
+
+      let csv = "\uFEFFFecha,Tipo,Categoría,Descripción,Monto\r\n";
+      movimientos.forEach(function(item) {
+        csv += [item.fecha, item.tipo, item.categoria, item.descripcion, item.monto].map(celdaCSV).join(",") + "\r\n";
+      });
+
+      descargarArchivo(csv, "respaldo_finca_" + fechaDeHoy() + ".csv", "text/csv;charset=utf-8");
+    }
+
+    // Lector de CSV que respeta comillas, comas y saltos de línea dentro de los textos.
+    function parsearCSV(texto) {
+      texto = texto.replace(/^\uFEFF/, "");
+      const primera = texto.split(/\r?\n/)[0] || "";
+      const separador = primera.split(";").length > primera.split(",").length ? ";" : ",";
+
+      const filas = [];
+      let fila = [];
+      let campo = "";
+      let entreComillas = false;
+
+      function cerrarFila() {
+        fila.push(campo);
+        campo = "";
+        if (fila.some(function(x) { return x.trim() !== ""; })) filas.push(fila);
+        fila = [];
+      }
+
+      for (let i = 0; i < texto.length; i++) {
+        const c = texto[i];
+        if (entreComillas) {
+          if (c === '"') {
+            if (texto[i + 1] === '"') { campo += '"'; i++; }
+            else entreComillas = false;
+          } else {
+            campo += c;
+          }
+        } else if (c === '"') {
+          entreComillas = true;
+        } else if (c === separador) {
+          fila.push(campo);
+          campo = "";
+        } else if (c === "\n" || c === "\r") {
+          if (c === "\r" && texto[i + 1] === "\n") i++;
+          cerrarFila();
+        } else {
+          campo += c;
+        }
+      }
+      cerrarFila();
+      return filas;
+    }
+
+    function importarCSV(evento) {
+      const entrada = evento.target;
+      const archivo = entrada.files[0];
+      if (!archivo) return;
+
+      const lector = new FileReader();
+
+      lector.onload = function(e) {
+        try {
+          const filas = parsearCSV(String(e.target.result));
+
+          if (filas.length <= 1) {
+            alert("El archivo CSV está vacío o no contiene registros.");
+            return;
+          }
+
+          const candidatos = [];
+          for (let i = 1; i < filas.length; i++) {
+            const c = filas[i].map(function(x) { return x.trim(); });
+            if (c.length < 5) continue;
+            candidatos.push({
+              id: Date.now() + i,
+              fecha: c[0],
+              tipo: c[1],
+              categoria: c[2] || "otro",
+              descripcion: c[3],
+              monto: Number(c[4].replace(",", "."))
+            });
+          }
+
+          const limpio = limpiarMovimientos(candidatos);
+          const omitidos = (filas.length - 1) - limpio.validos.length;
+
+          if (limpio.validos.length === 0) {
+            alert("No se pudo leer ningún movimiento válido. Revisa que el archivo tenga las columnas: Fecha (AAAA-MM-DD), Tipo (venta/gasto), Categoría, Descripción y Monto.");
+            return;
+          }
+
+          // Se agregan solo los que todavía no existen (así no se duplican al restaurar dos veces).
+          const existentes = {};
+          const clave = function(m) { return [m.fecha, m.tipo, m.categoria, m.descripcion, Number(m.monto)].join("|"); };
+          movimientos.forEach(function(m) { const k = clave(m); existentes[k] = (existentes[k] || 0) + 1; });
+
+          const nuevos = [];
+          limpio.validos.forEach(function(m) {
+            const k = clave(m);
+            if (existentes[k] > 0) existentes[k]--;
+            else nuevos.push(m);
+          });
+
+          const repetidos = limpio.validos.length - nuevos.length;
+
+          if (nuevos.length === 0) {
+            alert("Todos los movimientos del archivo ya existen en la app. No se agregó nada.");
+            return;
+          }
+
+          let mensaje = "Se leyeron " + limpio.validos.length + " movimientos válidos.\n";
+          if (repetidos > 0) mensaje += repetidos + " ya existen y se omitirán.\n";
+          if (omitidos > 0) mensaje += omitidos + " filas se omitieron por datos incorrectos.\n";
+          mensaje += "\n¿Agregar " + nuevos.length + " movimientos nuevos? Tus datos actuales NO se borrarán.";
+
+          if (!confirm(mensaje)) return;
+
+          crearCopiaAutomatica("Antes de importar un CSV");
+          movimientos = movimientos.concat(nuevos);
+          guardarMovimientos();
+          actualizarTodo();
+          alert("¡Se agregaron " + nuevos.length + " movimientos!");
+        } catch (error) {
+          alert("No se pudo leer el archivo CSV. Tus datos actuales no fueron modificados.");
+        } finally {
+          entrada.value = "";
+        }
+      };
+
+      lector.readAsText(archivo, "UTF-8");
+    }
+
+    /* BÚSQUEDA */
+    function buscarPorFecha() {
+      const fecha = document.getElementById("buscarFecha").value;
+      const resultados = document.getElementById("resultadosBusqueda");
+
+      if (!fecha) {
+        resultados.innerHTML = '<p class="mensaje error">Selecciona una fecha.</p>';
+        return;
+      }
+
+      const encontrados = movimientos.filter(function(item) {
+        return item.fecha === fecha;
+      });
+
+      if (encontrados.length === 0) {
+        resultados.innerHTML = '<p class="sin-datos">No hay movimientos para esa fecha.</p>';
+        return;
+      }
+
+      resultados.innerHTML = ordenarPorFecha(encontrados).map(crearHTMLMovimiento).join("");
+    }
+
+    function mostrarTodosLosMovimientos() {
+      document.getElementById("buscarFecha").value = "";
+      const resultados = document.getElementById("resultadosBusqueda");
+
+      resultados.innerHTML = ordenarPorFecha(movimientos).map(crearHTMLMovimiento).join("");
+
+      if (movimientos.length === 0) {
+        resultados.innerHTML = '<p class="sin-datos">No hay movimientos.</p>';
+      }
+    }
+
+    /* PRODUCCIÓN */
+    function cambiarProducto() {
+      const producto = document.getElementById("producto").value;
+      const calidad = document.getElementById("calidad");
+      const unidad = document.getElementById("unidad");
+      const campoOtro = document.getElementById("campoOtro");
+      const nombreOtro = document.getElementById("nombreOtro");
+
+      campoOtro.classList.add("oculto");
+      nombreOtro.required = false;
+
+      calidad.innerHTML = "";
+      unidad.innerHTML = "";
+
+      if (producto === "platano") {
+        calidad.innerHTML = `
+          <option value="primera">Primera</option>
+          <option value="segunda">Segunda</option>
+        `;
+        unidad.innerHTML = '<option value="kg">Kilogramos</option>';
+      }
+
+      if (producto === "cafe") {
+        calidad.innerHTML = `
+          <option value="cafe-cereza">Café cereza</option>
+          <option value="cafe-pergamino">Café pergamino</option>
+          <option value="cafe-pasilla">Café pasilla</option>
+          <option value="cafe-tostado-natural">Café tostado natural</option>
+          <option value="cafe-tostado-honey">Café tostado Honey</option>
+          <option value="cafe-tostado-lavado">Café tostado lavado</option>
+          <option value="cafe-tostado">Café tostado (registro anterior)</option>
+          <option value="cafe-verde">Café producido (registro anterior)</option>
+        `;
+        unidad.innerHTML = `
+          <option value="kg">Kilogramos</option>
+          <option value="media-libra">Media libra</option>
+          <option value="libra">Libra</option>
+          <option value="cuarteron">Cuarterón de 5 libras</option>
+        `;
+      }
+
+      if (producto === "huevos") {
+        calidad.innerHTML = `
+          <option value="general">Producción general</option>
+        `;
+        unidad.innerHTML = `
+          <option value="unidades">Unidades de huevo</option>
+          <option value="cubetas">Cubetas</option>
+        `;
+      }
+
+      if (producto === "limon" || producto === "naranja") {
+        calidad.innerHTML = '<option value="general">Producción general</option>';
+        unidad.innerHTML = `
+          <option value="kg">Kilogramos</option>
+          <option value="unidades">Unidades</option>
+          <option value="canastos">Canastos</option>
+        `;
+      }
+
+      if (producto === "otros") {
+        campoOtro.classList.remove("oculto");
+        nombreOtro.required = true;
+        calidad.innerHTML = '<option value="general">General</option>';
+        unidad.innerHTML = `
+          <option value="kg">Kilogramos</option>
+          <option value="unidades">Unidades</option>
+          <option value="bultos">Bultos</option>
+          <option value="cajas">Cajas</option>
+          <option value="litros">Litros</option>
+        `;
+      }
+    }
+
+    function guardarProduccion() {
+      guardarLocal("produccionFinca", produccion);
+    }
+
+    function registrarProduccion(evento) {
+      evento.preventDefault();
+      const producto = document.getElementById("producto").value;
+      const nombreOtro = document.getElementById("nombreOtro").value.trim();
+
+      let nombre = {
+        platano: "Plátano",
+        cafe: "Café",
+        huevos: "Huevos",
+        limon: "Limón",
+        naranja: "Naranja",
+        otros: nombreOtro
+      }[producto];
+
+      const registro = {
+        id: idProduccionEditando !== null ? idProduccionEditando : Date.now(),
+        fecha: document.getElementById("fechaProduccion").value,
+        producto: producto,
+        nombre: nombre,
+        calidad: document.getElementById("calidad").value,
+        cantidad: Number(document.getElementById("cantidad").value),
+        unidad: document.getElementById("unidad").value,
+        detalle: document.getElementById("detalleProduccion").value.trim()
+      };
+
+      if (!registro.fecha || registro.cantidad <= 0 || !registro.nombre) {
+        document.getElementById("mensajeProduccion").textContent = "Completa correctamente los datos.";
+        document.getElementById("mensajeProduccion").className = "mensaje error";
+        return;
+      }
+
+      if (idProduccionEditando !== null) {
+        const indice = produccion.findIndex(function(item) {
+          return item.id === idProduccionEditando;
+        });
+        if (indice !== -1) produccion[indice] = registro;
+        guardarProduccion();
+        cancelarEdicionProduccion();
+        document.getElementById("mensajeProduccion").textContent = "Producción actualizada correctamente.";
+      } else {
+        produccion.push(registro);
+        guardarProduccion();
+        document.getElementById("mensajeProduccion").textContent = "Producción guardada correctamente.";
+      }
+
+      document.getElementById("cantidad").value = "";
+      document.getElementById("detalleProduccion").value = "";
+      document.getElementById("nombreOtro").value = "";
+      document.getElementById("fechaProduccion").value = fechaDeHoy();
+
+      document.getElementById("mensajeProduccion").className = "mensaje exito";
+      actualizarProduccion();
+    }
+
+    function editarProduccion(id) {
+      const item = produccion.find(function(registro) {
+        return registro.id === id;
+      });
+      if (!item) return;
+
+      idProduccionEditando = id;
+      document.getElementById("fechaProduccion").value = item.fecha || fechaDeHoy();
+      document.getElementById("producto").value = item.producto || "platano";
+      cambiarProducto();
+      document.getElementById("calidad").value = item.calidad || document.getElementById("calidad").value;
+      document.getElementById("cantidad").value = item.cantidad;
+      document.getElementById("unidad").value = item.unidad || document.getElementById("unidad").value;
+      document.getElementById("nombreOtro").value = item.producto === "otros" ? (item.nombre || "") : "";
+      document.getElementById("detalleProduccion").value = item.detalle || "";
+      document.getElementById("botonGuardarProduccion").textContent = "Guardar cambios";
+      document.getElementById("botonCancelarProduccion").classList.remove("oculto");
+      document.getElementById("mensajeProduccion").textContent = "Editando este registro de producción.";
+      document.getElementById("mensajeProduccion").className = "mensaje";
+      document.getElementById("cantidad").focus();
+    }
+
+    function cancelarEdicionProduccion() {
+      idProduccionEditando = null;
+      document.getElementById("botonGuardarProduccion").textContent = "Guardar producción";
+      document.getElementById("botonCancelarProduccion").classList.add("oculto");
+      document.getElementById("fechaProduccion").value = fechaDeHoy();
+      document.getElementById("cantidad").value = "";
+      document.getElementById("detalleProduccion").value = "";
+      document.getElementById("nombreOtro").value = "";
+      document.getElementById("producto").value = "platano";
+      cambiarProducto();
+    }
+
+    function obtenerMesActual() {
+      return fechaDeHoy().slice(0, 7);
+    }
+
+    function asegurarMesInicial(id) {
+      const campo = document.getElementById(id);
+      if (campo && !campo.value) campo.value = obtenerMesActual();
+    }
+
+    function registrosDelMes(lista, mes) {
+      return lista.filter(function(item) {
+        return String(item.fecha || "").slice(0, 7) === mes;
+      });
+    }
+
+    function formatearCantidadPorUnidad(items) {
+      const totales = {};
+
+      items.forEach(function(item) {
+        const unidad = item.unidad || "sin unidad";
+        const cantidad = Number(item.cantidad) || 0;
+        totales[unidad] = (totales[unidad] || 0) + cantidad;
+      });
+
+      const etiquetas = {
+        kg: "kg",
+        "media-libra": "medias libras",
+        libra: "libras",
+        cuarteron: "cuarterones",
+        unidades: "unidades",
+        cubetas: "cubetas",
+        canastos: "canastos",
+        bultos: "bultos",
+        cajas: "cajas",
+        litros: "litros",
+        "sin unidad": ""
+      };
+
+      const partes = Object.keys(totales).map(function(unidad) {
+        const cantidad = Number(totales[unidad].toFixed(2));
+        const etiqueta = etiquetas[unidad] !== undefined ? etiquetas[unidad] : unidad;
+        return cantidad + (etiqueta ? " " + etiqueta : "");
+      });
+
+      return partes.length ? partes.join(" + ") : "0";
+    }
+
+    function obtenerCategoriaProduccion(item) {
+      if (item.producto === "platano") {
+        if (item.calidad === "primera") return "platanoPrimera";
+        if (item.calidad === "segunda") return "platanoSegunda";
+      }
+
+      if (item.producto === "cafe") {
+        if (item.calidad === "cafe-cereza") return "cafeCereza";
+        if (item.calidad === "cafe-pergamino") return "cafePergamino";
+        if (item.calidad === "cafe-pasilla") return "cafePasilla";
+        if (item.calidad === "cafe-tostado-natural") return "cafeTostadoNatural";
+        if (item.calidad === "cafe-tostado-honey") return "cafeTostadoHoney";
+        if (item.calidad === "cafe-tostado-lavado") return "cafeTostadoLavado";
+        // El valor "cafe-tostado" corresponde a registros antiguos donde
+        // todavía no se había especificado el proceso de tostión. No se
+        // asigna automáticamente a Natural, Honey o Lavado.
+        if (item.calidad === "cafe-tostado") return "otros";
+        // Los registros antiguos que usaban "cafe-verde" no permiten saber
+        // si eran cereza, pergamino o pasilla, por lo que se muestran en Otros.
+        return "otros";
+      }
+
+      if (item.producto === "huevos") return "huevos";
+      return "otros";
+    }
+
+    function obtenerTextoCategoriaProduccion(categoria) {
+      const nombres = {
+        cafeCereza: "Café cereza",
+        cafePergamino: "Café pergamino",
+        cafePasilla: "Café pasilla",
+        cafeTostadoNatural: "Café tostado natural",
+        cafeTostadoHoney: "Café tostado Honey",
+        cafeTostadoLavado: "Café tostado lavado",
+        platanoPrimera: "Plátano de primera",
+        platanoSegunda: "Plátano de segunda",
+        huevos: "Huevos",
+        otros: "Otros"
+      };
+      return nombres[categoria] || "Otros";
+    }
+
+    function actualizarResumenProduccion() {
+      asegurarMesInicial("mesResumenProduccion");
+      const mes = document.getElementById("mesResumenProduccion").value;
+      const registros = registrosDelMes(produccion, mes);
+      const categorias = {
+        cafeCereza: [],
+        cafePergamino: [],
+        cafePasilla: [],
+        cafeTostadoNatural: [],
+        cafeTostadoHoney: [],
+        cafeTostadoLavado: [],
+        platanoPrimera: [],
+        platanoSegunda: [],
+        huevos: [],
+        otros: []
+      };
+
+      registros.forEach(function(item) {
+        const categoria = obtenerCategoriaProduccion(item);
+        categorias[categoria].push(item);
+      });
+
+      document.getElementById("totalCafeCereza").textContent = formatearCantidadPorUnidad(categorias.cafeCereza);
+      document.getElementById("totalCafePergamino").textContent = formatearCantidadPorUnidad(categorias.cafePergamino);
+      document.getElementById("totalCafePasilla").textContent = formatearCantidadPorUnidad(categorias.cafePasilla);
+      document.getElementById("totalCafeTostadoNatural").textContent = formatearCantidadPorUnidad(categorias.cafeTostadoNatural);
+      document.getElementById("totalCafeTostadoHoney").textContent = formatearCantidadPorUnidad(categorias.cafeTostadoHoney);
+      document.getElementById("totalCafeTostadoLavado").textContent = formatearCantidadPorUnidad(categorias.cafeTostadoLavado);
+      document.getElementById("totalPlatanoPrimera").textContent = formatearCantidadPorUnidad(categorias.platanoPrimera);
+      document.getElementById("totalPlatanoSegunda").textContent = formatearCantidadPorUnidad(categorias.platanoSegunda);
+      document.getElementById("totalHuevos").textContent = formatearCantidadPorUnidad(categorias.huevos);
+      document.getElementById("totalOtros").textContent = formatearCantidadPorUnidad(categorias.otros);
+    }
+
+    function mostrarProduccion() {
+      const contenedor = document.getElementById("historialProduccion");
+      const ordenada = ordenarPorFecha(produccion);
+
+      if (ordenada.length === 0) {
+        contenedor.innerHTML = '<p class="sin-datos">No hay producción registrada.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = ordenada.map(function(item) {
+        return `
+          <div class="produccion-item">
+            <div>
+              <h4>${escaparHTML(item.nombre)}</h4>
+              <p><strong>Fecha:</strong> ${escaparHTML(item.fecha)}</p>
+              <p><strong>Calidad:</strong> ${escaparHTML(item.calidad)}</p>
+              <p><strong>Cantidad:</strong> ${item.cantidad} ${escaparHTML(item.unidad)}</p>
+              <p>${escaparHTML(item.detalle || "")}</p>
+            </div>
+            <div class="acciones-registro">
+              <button class="boton-editar" onclick="editarProduccion(${item.id})">✏️ Editar</button>
+              <button class="boton-eliminar" onclick="eliminarProduccion(${item.id})">Eliminar</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function eliminarProduccion(id) {
+      if (!confirm("¿Deseas eliminar este registro?")) return;
+
+      produccion = produccion.filter(function(item) {
+        return item.id !== id;
+      });
+
+      guardarProduccion();
+      actualizarProduccion();
+    }
+
+    function borrarTodaLaProduccion() {
+      if (!confirm("¿Deseas borrar toda la producción?")) return;
+
+      crearCopiaAutomatica("Antes de borrar toda la producción");
+      produccion = [];
+      guardarProduccion();
+      actualizarProduccion();
+    }
+
+    function actualizarProduccion() {
+      mostrarProduccion();
+      actualizarResumenProduccion();
+    }
+
+    /* INVENTARIO */
+    function guardarInventario() {
+      guardarLocal("inventarioFinca", inventario);
+    }
+
+    function registrarInventario(evento) {
+      evento.preventDefault();
+
+      const item = {
+        id: idInventarioEditando !== null ? idInventarioEditando : Date.now(),
+        nombre: document.getElementById("nombreInventario").value.trim(),
+        cantidad: Number(document.getElementById("cantidadInventario").value),
+        unidad: document.getElementById("unidadInventario").value,
+        fecha: document.getElementById("fechaInventario").value,
+        detalle: document.getElementById("detalleInventario").value.trim()
+      };
+
+      if (!item.nombre || item.cantidad < 0 || !item.fecha) {
+        document.getElementById("mensajeInventario").textContent = "Completa correctamente los datos.";
+        document.getElementById("mensajeInventario").className = "mensaje error";
+        return;
+      }
+
+      if (idInventarioEditando !== null) {
+        const indice = inventario.findIndex(function(registro) {
+          return registro.id === idInventarioEditando;
+        });
+        if (indice !== -1) inventario[indice] = item;
+        guardarInventario();
+        cancelarEdicionInventario();
+        document.getElementById("mensajeInventario").textContent = "Inventario actualizado correctamente.";
+      } else {
+        inventario.push(item);
+        guardarInventario();
+        document.getElementById("mensajeInventario").textContent = "Inventario guardado correctamente.";
+      }
+
+      document.getElementById("nombreInventario").value = "";
+      document.getElementById("cantidadInventario").value = "";
+      document.getElementById("detalleInventario").value = "";
+      document.getElementById("fechaInventario").value = fechaDeHoy();
+
+      document.getElementById("mensajeInventario").className = "mensaje exito";
+      mostrarInventario();
+    }
+
+    function editarInventario(id) {
+      const item = inventario.find(function(registro) {
+        return registro.id === id;
+      });
+      if (!item) return;
+
+      idInventarioEditando = id;
+      document.getElementById("nombreInventario").value = item.nombre || "";
+      document.getElementById("cantidadInventario").value = item.cantidad;
+      document.getElementById("unidadInventario").value = item.unidad || "unidades";
+      document.getElementById("fechaInventario").value = item.fecha || fechaDeHoy();
+      document.getElementById("detalleInventario").value = item.detalle || "";
+      document.getElementById("botonGuardarInventario").textContent = "Guardar cambios";
+      document.getElementById("botonCancelarInventario").classList.remove("oculto");
+      document.getElementById("mensajeInventario").textContent = "Editando este registro de inventario.";
+      document.getElementById("mensajeInventario").className = "mensaje";
+      document.getElementById("nombreInventario").focus();
+    }
+
+    function cancelarEdicionInventario() {
+      idInventarioEditando = null;
+      document.getElementById("botonGuardarInventario").textContent = "Guardar inventario";
+      document.getElementById("botonCancelarInventario").classList.add("oculto");
+      document.getElementById("nombreInventario").value = "";
+      document.getElementById("cantidadInventario").value = "";
+      document.getElementById("detalleInventario").value = "";
+      document.getElementById("fechaInventario").value = fechaDeHoy();
+    }
+
+    function mostrarInventario() {
+      const contenedor = document.getElementById("historialInventario");
+
+      if (inventario.length === 0) {
+        contenedor.innerHTML = '<p class="sin-datos">No hay elementos en el inventario.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = inventario.map(function(item) {
+        return `
+          <div class="inventario-item">
+            <div>
+              <h4>${escaparHTML(item.nombre)}</h4>
+              <p><strong>Cantidad:</strong> ${item.cantidad} ${escaparHTML(item.unidad)}</p>
+              <p><strong>Fecha:</strong> ${escaparHTML(item.fecha)}</p>
+              <p>${escaparHTML(item.detalle || "")}</p>
+            </div>
+            <div class="acciones-registro">
+              <button class="boton-editar" onclick="editarInventario(${item.id})">✏️ Editar</button>
+              <button class="boton-eliminar" onclick="eliminarInventario(${item.id})">Eliminar</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function eliminarInventario(id) {
+      if (!confirm("¿Deseas eliminar este elemento del inventario?")) return;
+
+      inventario = inventario.filter(function(item) {
+        return item.id !== id;
+      });
+
+      guardarInventario();
+      mostrarInventario();
+    }
+
+    /* BITÁCORA */
+    function guardarNotas() {
+      guardarLocal("notasFinca", notas);
+    }
+
+    function registrarNota(evento) {
+      evento.preventDefault();
+
+      const nota = {
+        id: idNotaEditando !== null ? idNotaEditando : Date.now(),
+        fecha: document.getElementById("fechaNota").value,
+        titulo: document.getElementById("tituloNota").value.trim(),
+        texto: document.getElementById("textoNota").value.trim()
+      };
+
+      if (!nota.fecha || !nota.titulo || !nota.texto) {
+        document.getElementById("mensajeNota").textContent = "Completa todos los campos.";
+        document.getElementById("mensajeNota").className = "mensaje error";
+        return;
+      }
+
+      if (idNotaEditando !== null) {
+        const indice = notas.findIndex(function(item) {
+          return item.id === idNotaEditando;
+        });
+        if (indice !== -1) notas[indice] = nota;
+        guardarNotas();
+        cancelarEdicionNota();
+        document.getElementById("mensajeNota").textContent = "Nota actualizada correctamente.";
+      } else {
+        notas.push(nota);
+        guardarNotas();
+        document.getElementById("mensajeNota").textContent = "Nota guardada correctamente.";
+      }
+
+      document.getElementById("tituloNota").value = "";
+      document.getElementById("textoNota").value = "";
+      document.getElementById("fechaNota").value = fechaDeHoy();
+
+      document.getElementById("mensajeNota").className = "mensaje exito";
+      mostrarNotas();
+    }
+
+    function editarNota(id) {
+      const nota = notas.find(function(item) {
+        return item.id === id;
+      });
+      if (!nota) return;
+
+      idNotaEditando = id;
+      document.getElementById("fechaNota").value = nota.fecha || fechaDeHoy();
+      document.getElementById("tituloNota").value = nota.titulo || "";
+      document.getElementById("textoNota").value = nota.texto || "";
+      document.getElementById("botonGuardarNota").textContent = "Guardar cambios";
+      document.getElementById("botonCancelarNota").classList.remove("oculto");
+      document.getElementById("mensajeNota").textContent = "Editando esta nota.";
+      document.getElementById("mensajeNota").className = "mensaje";
+      document.getElementById("tituloNota").focus();
+    }
+
+    function cancelarEdicionNota() {
+      idNotaEditando = null;
+      document.getElementById("botonGuardarNota").textContent = "Guardar nota";
+      document.getElementById("botonCancelarNota").classList.add("oculto");
+      document.getElementById("fechaNota").value = fechaDeHoy();
+      document.getElementById("tituloNota").value = "";
+      document.getElementById("textoNota").value = "";
+    }
+
+    function mostrarNotas() {
+      const contenedor = document.getElementById("historialNotas");
+      const ordenadas = ordenarPorFecha(notas);
+
+      if (ordenadas.length === 0) {
+        contenedor.innerHTML = '<p class="sin-datos">No hay notas guardadas.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = ordenadas.map(function(nota) {
+        return `
+          <div class="nota-item">
+            <div>
+              <h4>${escaparHTML(nota.titulo)}</h4>
+              <p><strong>Fecha:</strong> ${escaparHTML(nota.fecha)}</p>
+              <p>${escaparHTML(nota.texto)}</p>
+            </div>
+            <div class="acciones-registro">
+              <button class="boton-editar" onclick="editarNota(${nota.id})">✏️ Editar</button>
+              <button class="boton-eliminar" onclick="eliminarNota(${nota.id})">Eliminar</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function eliminarNota(id) {
+      if (!confirm("¿Deseas eliminar esta nota?")) return;
+
+      notas = notas.filter(function(nota) {
+        return nota.id !== id;
+      });
+
+      guardarNotas();
+      mostrarNotas();
+    }
+
+    /* ACTUALIZACIÓN GENERAL */
+    function actualizarTodo() {
+      actualizarResumen();
+      actualizarResumenMensualMovimientos();
+      mostrarHistorial();
+      mostrarUltimosMovimientos();
+      actualizarProduccion();
+      mostrarInventario();
+      mostrarNotas();
+      actualizarAvisoRespaldo();
+      mostrarCopiasAutomaticas();
+    }
+
+    /* FECHAS INICIALES */
+    document.getElementById("fecha").value = fechaDeHoy();
+    document.getElementById("fechaProduccion").value = fechaDeHoy();
+    document.getElementById("fechaInventario").value = fechaDeHoy();
+    document.getElementById("fechaNota").value = fechaDeHoy();
+    document.getElementById("mesResumenMovimientos").value = obtenerMesActual();
+    document.getElementById("mesResumenProduccion").value = obtenerMesActual();
+
+    cambiarProducto();
+    actualizarTodo();
+  </script>
+
+</body>
+</html>
