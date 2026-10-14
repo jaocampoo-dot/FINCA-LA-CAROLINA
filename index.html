@@ -740,6 +740,7 @@
                 <label for="unidad">Unidad</label>
                 <select id="unidad">
                   <option value="kg">Kilogramos</option>
+                  <option value="libras">Libras</option>
                 </select>
               </div>
 
@@ -821,15 +822,26 @@
           <h2>Inventario de la finca</h2>
 
           <div class="tarjeta">
+            <h3>Registrar entrada, salida o ajuste</h3>
+            <p class="sin-datos">Las entradas aumentan las existencias y las salidas las descuentan. Usa “Ajuste de inventario” para registrar la cantidad inicial o corregir el saldo después de contar físicamente.</p>
             <form onsubmit="registrarInventario(event)" class="formulario">
               <div class="campo">
                 <label for="nombreInventario">Producto o elemento</label>
-                <input type="text" id="nombreInventario" placeholder="Ejemplo: Abono, machete, fertilizante..." required>
+                <input type="text" id="nombreInventario" placeholder="Ejemplo: Abono, café, fertilizante..." required>
               </div>
 
               <div class="campo">
-                <label for="cantidadInventario">Cantidad</label>
-                <input type="number" id="cantidadInventario" min="0" step="0.01" required>
+                <label for="tipoMovimientoInventario">Tipo de movimiento</label>
+                <select id="tipoMovimientoInventario" required>
+                  <option value="entrada">Entrada (sumar)</option>
+                  <option value="salida">Salida (restar)</option>
+                  <option value="ajuste">Ajuste de inventario</option>
+                </select>
+              </div>
+
+              <div class="campo">
+                <label for="cantidadInventario">Cantidad del movimiento</label>
+                <input type="number" id="cantidadInventario" min="0.01" step="0.01" required>
               </div>
 
               <div class="campo">
@@ -841,21 +853,22 @@
                   <option value="litros">Litros</option>
                   <option value="cajas">Cajas</option>
                   <option value="sacos">Sacos</option>
+                  <option value="libras">Libras</option>
                 </select>
               </div>
 
               <div class="campo">
-                <label for="fechaInventario">Fecha de actualización</label>
+                <label for="fechaInventario">Fecha del movimiento</label>
                 <input type="date" id="fechaInventario" required>
               </div>
 
               <div class="campo campo-completo">
                 <label for="detalleInventario">Detalle</label>
-                <textarea id="detalleInventario" placeholder="Ejemplo: quedan 3 bultos de abono..."></textarea>
+                <textarea id="detalleInventario" placeholder="Ejemplo: compra de 3 bultos de abono o salida para el lote 1..."></textarea>
               </div>
 
               <div class="campo">
-                <button id="botonGuardarInventario" class="boton" type="submit">Guardar inventario</button>
+                <button id="botonGuardarInventario" class="boton" type="submit">Registrar movimiento</button>
                 <button id="botonCancelarInventario" class="boton boton-gris oculto" type="button" onclick="cancelarEdicionInventario()">Cancelar edición</button>
               </div>
             </form>
@@ -864,7 +877,13 @@
           </div>
 
           <div class="tarjeta">
-            <h3>Inventario actual</h3>
+            <h3>Balance de existencias</h3>
+            <p class="sin-datos">Saldo calculado automáticamente por fecha: entradas suman, salidas restan y un ajuste establece la cantidad exacta disponible desde ese día. Los productos con unidades distintas se mantienen separados.</p>
+            <div id="balanceInventario" class="tabla-resumen"></div>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Historial de movimientos de inventario</h3>
             <div id="historialInventario"></div>
           </div>
         </section>
@@ -2167,114 +2186,167 @@
       actualizarResumenProduccion();
     }
 
-    /* INVENTARIO */
+    /* INVENTARIO: balance automático por producto y unidad */
     function guardarInventario() {
       guardarLocal("inventarioFinca", inventario);
     }
 
+    function tipoInventario(registro) {
+      // Los registros antiguos no tenían tipo: se interpretan como saldo inicial/ajuste.
+      return registro.tipoMovimiento || "ajuste";
+    }
+
+    function claveProductoInventario(nombre, unidad) {
+      return String(nombre || "").trim().toLocaleLowerCase("es") + "||" + String(unidad || "unidades");
+    }
+
+    function calcularBalanceInventario(excluirId) {
+      const saldos = new Map();
+      const registrosOrdenados = inventario
+        .filter(function(registro) { return excluirId === undefined || registro.id !== excluirId; })
+        .slice()
+        .sort(function(a, b) {
+          const porFecha = String(a.fecha || "").localeCompare(String(b.fecha || ""));
+          return porFecha || Number(a.id || 0) - Number(b.id || 0);
+        });
+      registrosOrdenados.forEach(function(registro) {
+        const nombre = String(registro.nombre || "Producto").trim();
+        const unidad = registro.unidad || "unidades";
+        const clave = claveProductoInventario(nombre, unidad);
+        if (!saldos.has(clave)) saldos.set(clave, { nombre: nombre, unidad: unidad, saldo: 0 });
+        const cantidad = Number(registro.cantidad) || 0;
+        const tipo = tipoInventario(registro);
+        const saldo = saldos.get(clave);
+        if (tipo === "entrada") saldo.saldo += cantidad;
+        else if (tipo === "salida") saldo.saldo -= cantidad;
+        else saldo.saldo = cantidad; // Ajuste: establece el saldo exacto desde esa fecha.
+      });
+      return saldos;
+    }
+
     function registrarInventario(evento) {
       evento.preventDefault();
-
+      const mensaje = document.getElementById("mensajeInventario");
+      const editando = idInventarioEditando !== null;
+      const tipoMovimiento = document.getElementById("tipoMovimientoInventario").value;
       const item = {
-        id: idInventarioEditando !== null ? idInventarioEditando : Date.now(),
+        id: editando ? idInventarioEditando : Date.now(),
         nombre: document.getElementById("nombreInventario").value.trim(),
+        tipoMovimiento: tipoMovimiento,
         cantidad: Number(document.getElementById("cantidadInventario").value),
         unidad: document.getElementById("unidadInventario").value,
         fecha: document.getElementById("fechaInventario").value,
         detalle: document.getElementById("detalleInventario").value.trim()
       };
 
-      if (!item.nombre || item.cantidad < 0 || !item.fecha) {
-        document.getElementById("mensajeInventario").textContent = "Completa correctamente los datos.";
-        document.getElementById("mensajeInventario").className = "mensaje error";
+      if (!item.nombre || !Number.isFinite(item.cantidad) || item.cantidad <= 0 || !item.fecha) {
+        mensaje.textContent = "Escribe un producto, una cantidad mayor que cero y una fecha válida.";
+        mensaje.className = "mensaje error";
         return;
       }
 
-      if (idInventarioEditando !== null) {
-        const indice = inventario.findIndex(function(registro) {
-          return registro.id === idInventarioEditando;
-        });
-        if (indice !== -1) inventario[indice] = item;
-        guardarInventario();
-        cancelarEdicionInventario();
-        document.getElementById("mensajeInventario").textContent = "Inventario actualizado correctamente.";
-      } else {
-        inventario.push(item);
-        guardarInventario();
-        document.getElementById("mensajeInventario").textContent = "Inventario guardado correctamente.";
+      const saldosPrevios = calcularBalanceInventario(editando ? idInventarioEditando : undefined);
+      const clave = claveProductoInventario(item.nombre, item.unidad);
+      const saldoActual = saldosPrevios.has(clave) ? saldosPrevios.get(clave).saldo : 0;
+      let saldoResultante = saldoActual;
+      if (tipoMovimiento === "entrada") saldoResultante += item.cantidad;
+      else if (tipoMovimiento === "salida") saldoResultante -= item.cantidad;
+      else saldoResultante = item.cantidad;
+
+      if (tipoMovimiento === "salida" && saldoResultante < -0.000001) {
+        mensaje.textContent = "No hay suficiente existencia. Disponible: " + formatoCantidadInventario(Math.max(0, saldoActual)) + " " + item.unidad + ".";
+        mensaje.className = "mensaje error";
+        return;
       }
 
-      document.getElementById("nombreInventario").value = "";
-      document.getElementById("cantidadInventario").value = "";
-      document.getElementById("detalleInventario").value = "";
-      document.getElementById("fechaInventario").value = fechaDeHoy();
+      if (tipoMovimiento === "ajuste" && saldoResultante < 0) {
+        mensaje.textContent = "El saldo ajustado no puede ser negativo.";
+        mensaje.className = "mensaje error";
+        return;
+      }
 
-      document.getElementById("mensajeInventario").className = "mensaje exito";
+      if (editando) {
+        const indice = inventario.findIndex(function(registro) { return registro.id === idInventarioEditando; });
+        if (indice !== -1) inventario[indice] = item;
+      } else {
+        inventario.push(item);
+      }
+
+      guardarInventario();
+      cancelarEdicionInventario();
+      document.getElementById("detalleInventario").value = "";
+      mensaje.textContent = tipoMovimiento === "entrada" ? "Entrada registrada: la existencia aumentó." :
+        tipoMovimiento === "salida" ? "Salida registrada: la existencia disminuyó." : "Ajuste de inventario guardado.";
+      mensaje.className = "mensaje exito";
       mostrarInventario();
     }
 
     function editarInventario(id) {
-      const item = inventario.find(function(registro) {
-        return registro.id === id;
-      });
+      const item = inventario.find(function(registro) { return registro.id === id; });
       if (!item) return;
-
       idInventarioEditando = id;
       document.getElementById("nombreInventario").value = item.nombre || "";
+      document.getElementById("tipoMovimientoInventario").value = tipoInventario(item);
       document.getElementById("cantidadInventario").value = item.cantidad;
       document.getElementById("unidadInventario").value = item.unidad || "unidades";
       document.getElementById("fechaInventario").value = item.fecha || fechaDeHoy();
       document.getElementById("detalleInventario").value = item.detalle || "";
       document.getElementById("botonGuardarInventario").textContent = "Guardar cambios";
       document.getElementById("botonCancelarInventario").classList.remove("oculto");
-      document.getElementById("mensajeInventario").textContent = "Editando este registro de inventario.";
+      document.getElementById("mensajeInventario").textContent = "Editando este movimiento. El balance se recalculará al guardar.";
       document.getElementById("mensajeInventario").className = "mensaje";
       document.getElementById("nombreInventario").focus();
     }
 
     function cancelarEdicionInventario() {
       idInventarioEditando = null;
-      document.getElementById("botonGuardarInventario").textContent = "Guardar inventario";
+      document.getElementById("botonGuardarInventario").textContent = "Registrar movimiento";
       document.getElementById("botonCancelarInventario").classList.add("oculto");
       document.getElementById("nombreInventario").value = "";
+      document.getElementById("tipoMovimientoInventario").value = "entrada";
       document.getElementById("cantidadInventario").value = "";
-      document.getElementById("detalleInventario").value = "";
+      document.getElementById("unidadInventario").value = "unidades";
       document.getElementById("fechaInventario").value = fechaDeHoy();
+      document.getElementById("detalleInventario").value = "";
+    }
+
+    function formatoCantidadInventario(cantidad) {
+      return new Intl.NumberFormat("es-CO", { maximumFractionDigits: 2 }).format(cantidad);
     }
 
     function mostrarInventario() {
       const contenedor = document.getElementById("historialInventario");
+      const balanceContenedor = document.getElementById("balanceInventario");
+      const saldos = Array.from(calcularBalanceInventario().values()).sort(function(a, b) {
+        return a.nombre.localeCompare(b.nombre, "es");
+      });
+
+      if (saldos.length === 0) {
+        balanceContenedor.innerHTML = '<p class="sin-datos">Todavía no hay existencias registradas.</p>';
+      } else {
+        balanceContenedor.innerHTML = `<table><thead><tr><th>Producto</th><th>Unidad</th><th>Existencia actual</th></tr></thead><tbody>${saldos.map(function(saldo) {
+          const clase = saldo.saldo < 0 ? ' style="color:#b83232;font-weight:bold"' : ' style="font-weight:bold;color:#174d2a"';
+          return `<tr><td>${escaparHTML(saldo.nombre)}</td><td>${escaparHTML(saldo.unidad)}</td><td${clase}>${formatoCantidadInventario(saldo.saldo)}</td></tr>`;
+        }).join("")}</tbody></table>`;
+      }
 
       if (inventario.length === 0) {
-        contenedor.innerHTML = '<p class="sin-datos">No hay elementos en el inventario.</p>';
+        contenedor.innerHTML = '<p class="sin-datos">No hay movimientos de inventario registrados.</p>';
         return;
       }
 
-      contenedor.innerHTML = inventario.map(function(item) {
-        return `
-          <div class="inventario-item">
-            <div>
-              <h4>${escaparHTML(item.nombre)}</h4>
-              <p><strong>Cantidad:</strong> ${item.cantidad} ${escaparHTML(item.unidad)}</p>
-              <p><strong>Fecha:</strong> ${escaparHTML(item.fecha)}</p>
-              <p>${escaparHTML(item.detalle || "")}</p>
-            </div>
-            <div class="acciones-registro">
-              <button class="boton-editar" onclick="editarInventario(${item.id})">✏️ Editar</button>
-              <button class="boton-eliminar" onclick="eliminarInventario(${item.id})">Eliminar</button>
-            </div>
-          </div>
-        `;
+      const ordenados = [...inventario].sort(function(a, b) { return String(b.fecha || "").localeCompare(String(a.fecha || "")); });
+      contenedor.innerHTML = ordenados.map(function(item) {
+        const tipo = tipoInventario(item);
+        const etiqueta = tipo === "entrada" ? "Entrada (+)" : tipo === "salida" ? "Salida (−)" : "Ajuste / saldo inicial";
+        const signo = tipo === "salida" ? "−" : tipo === "entrada" ? "+" : "=";
+        return `<div class="inventario-item"><div><h4>${escaparHTML(item.nombre)}</h4><p><strong>Movimiento:</strong> ${etiqueta}</p><p><strong>Cantidad:</strong> ${signo} ${formatoCantidadInventario(Number(item.cantidad) || 0)} ${escaparHTML(item.unidad || "unidades")}</p><p><strong>Fecha:</strong> ${escaparHTML(item.fecha || "")}</p><p>${escaparHTML(item.detalle || "")}</p></div><div class="acciones-registro"><button class="boton-editar" onclick="editarInventario(${item.id})">✏️ Editar</button><button class="boton-eliminar" onclick="eliminarInventario(${item.id})">Eliminar</button></div></div>`;
       }).join("");
     }
 
     function eliminarInventario(id) {
-      if (!confirm("¿Deseas eliminar este elemento del inventario?")) return;
-
-      inventario = inventario.filter(function(item) {
-        return item.id !== id;
-      });
-
+      if (!confirm("¿Deseas eliminar este movimiento? El balance se recalculará automáticamente.")) return;
+      inventario = inventario.filter(function(item) { return item.id !== id; });
       guardarInventario();
       mostrarInventario();
     }
