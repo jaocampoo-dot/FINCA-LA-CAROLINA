@@ -502,10 +502,34 @@
       background: #f7faf7; padding: 10px 12px; border-radius: 8px; margin-top: 8px;
     }
     .nota-respaldo { font-size: 14px; color: #5b6b60; margin-bottom: 0; }
+
+    /* VENTANA DE DETALLE PARA REGISTROS "OTROS" */
+    .tarjeta-otros-click { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+    .tarjeta-otros-click:hover { transform: translateY(-2px); box-shadow: 0 4px 14px #0002; }
+    .modal-otros { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(0,0,0,.58); }
+    .modal-otros.oculto { display: none; }
+    .modal-otros-contenido { background: #fff; width: min(850px, 100%); max-height: 85vh; overflow: auto; border-radius: 14px; padding: 22px; box-shadow: 0 12px 45px #0004; }
+    .modal-otros-cabecera { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .modal-otros-cabecera h3 { margin: 0; }
+    .modal-otros-cerrar { border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer; background: #eee; font-size: 18px; }
+    .fila-otro-detalle { border-bottom: 1px solid #e5e7eb; padding: 12px 0; display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .fila-otro-detalle:last-child { border-bottom: 0; }
+    .fila-otro-detalle p { margin: 4px 0; }
   </style>
 </head>
 
 <body>
+
+  <div id="modalDetalleOtros" class="modal-otros oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModalOtros" onclick="if(event.target===this)cerrarDetalleOtros()">
+    <div class="modal-otros-contenido">
+      <div class="modal-otros-cabecera">
+        <h3 id="tituloModalOtros">Detalle de Otros</h3>
+        <button type="button" class="modal-otros-cerrar" onclick="cerrarDetalleOtros()" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="contenidoDetalleOtros" style="margin-top:16px"></div>
+    </div>
+  </div>
+
 
   <!-- LOGIN -->
   <section id="pantallaLogin" class="pantalla-login">
@@ -525,7 +549,7 @@
         </div>
         <br>
         <button class="boton" type="submit">Iniciar sesión</button>
-        <p id="mensajeLogin" class="mensaje error"></p>
+        <p id="mensajeLogin" class="mensaje error"></p>                                                                                            
       </form>
     </div>
   </section>
@@ -536,13 +560,32 @@
     <header class="encabezado">
       <h1>☕ Mi Finca Cafetera</h1>
       <button class="boton-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+    <button class="boton" onclick="cambiarcontrasena()"> Cambiar contraseña</button> 
     </header>
+    <div id="formularioCambiarContrasena" class="tarjeta oculto">
+      <h3>Cambiar contraseña</h3>
 
+      <div class="campo">
+        <label for="contrasenaActual">Contraseña actual</label>
+        <input type="password" id="contrasenaActuaLNueva" autocomplete="current-password">
+      </div>
+      <button class="guardarNuevaContrasena" autocomplete="new-pasword">
+        </div>
+
+        <button class="boton" onclick="guardarNuevaContrasena()">Guardar nueva contraseña</button>
+        <button class="boton boton-gris" onclick="cancelarCambioContrasena()">Cancelar</button>
+        <p id="mensajeCambioContrasena" class="mensaje"></p>
+
+      <div class="campo">
+        <label for="confirmarNuevaContrasena">Confirmar nueva contraseña</label>
+        <input type="password" id="confirmarNuevaContrasena" autocomplete="new-password">
+      </div>
+    </div>
     <div class="contenedor-principal">
 
       <!-- MENÚ -->
       <nav class="menu">
-        <button class="activo" onclick="mostrarSeccion('inicio', this)">🏠 Inicio</button>
+        <button class="activo" onclick="mostrarSeccion('inicio', this)"butt>🏠 Inicio</button>
         <button onclick="mostrarSeccion('movimientos', this)">💰 Ventas y gastos</button>
         <button onclick="mostrarSeccion('produccion', this)">🌱 Producción</button>
         <button onclick="mostrarSeccion('inventario', this)">📦 Inventario</button>
@@ -604,6 +647,7 @@
                 <select id="tipo" required>
                   <option value="venta">Venta</option>
                   <option value="gasto">Gasto</option>
+                  <option value="otros">Otros</option>
                 </select>
               </div>
 
@@ -748,6 +792,7 @@
                 <select id="unidad">
                   <option value="kg">Kilogramos</option>
                   <option value="libras">Libras</option>
+                  <option value="Cuarteron">Cuarterón</option>
                 </select>
               </div>
 
@@ -805,8 +850,8 @@
               <div class="mini-tarjeta">
                 Huevos <strong id="totalHuevos">0</strong>
               </div>
-              <div class="mini-tarjeta">
-                Otros <strong id="totalOtros">0</strong>
+              <div class="mini-tarjeta tarjeta-otros-click" role="button" tabindex="0" onclick="mostrarDetalleOtrosProduccion()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mostrarDetalleOtrosProduccion();}">
+                Otros <strong id="totalOtros">0</strong><small style="display:block">Ver productos registrados</small>
               </div>
             </div>
             <p class="sin-datos">Las cantidades se mantienen separadas por unidad (kg, libras, medias libras, cubetas, etc.). No se convierten ni se mezclan unidades diferentes.</p>
@@ -861,6 +906,7 @@
                   <option value="cajas">Cajas</option>
                   <option value="sacos">Sacos</option>
                   <option value="libras">Libras</option>
+                  <option value="cuarterones">Cuarterones</option>
                 </select>
               </div>
 
@@ -967,7 +1013,7 @@
 
   <script>
     const USUARIO_CORRECTO = "efrain";
-    const CONTRASENA_CORRECTA = "9315";
+    const CONTRASENA_CORRECTA = localStorage.getItem("contrasenaFinca") || "9315";
 
     let sesionActiva = false;
 
@@ -1089,6 +1135,41 @@
       document.getElementById("usuario").value = "";
       document.getElementById("contrasena").value = "";
     }
+    /* CAMBIO DE CONTRASEÑA */
+   
+function cambiarContrasena() {
+  const contraseñaActual = document.getElementById("contrasena").value;
+
+  if (contraseñaActual !== CONTRASENA_CORRECTA) {
+    alert("Para cambiar la contraseña, primero cierra sesión e inicia sesión nuevamente.");
+    return;
+  }
+
+  const nuevaContrasena = prompt(
+    "Escribe la nueva contraseña (mínimo 4 caracteres):"
+  );
+
+  if (nuevaContrasena === null) return;
+
+  if (nuevaContrasena.trim().length < 4) {
+    alert("La contraseña debe tener al menos 4 caracteres.");
+    return;
+  }
+
+  const confirmarContrasena = prompt("Escribe nuevamente la nueva contraseña:");
+
+  if (confirmarContrasena === null) return;
+
+  if (nuevaContrasena !== confirmarContrasena) {
+    alert("Las contraseñas no coinciden.");
+    return;
+  }
+
+  localStorage.setItem("contrasenaFinca", nuevaContrasena);
+  CONTRASENA_CORRECTA = nuevaContrasena;
+
+  alert("Contraseña cambiada correctamente.");
+}
 
     /* MENÚ */
     function mostrarSeccion(nombre, boton) {
@@ -1280,7 +1361,7 @@
               const datos = categorias[clave];
               return `
                 <tr>
-                  <td>${escaparHTML(obtenerNombreCategoriaMovimiento(clave))}</td>
+                  <td>${clave === "otro" ? `<button type="button" class="boton tarjeta-otros-click" onclick="mostrarDetalleOtrosMovimientos()">${escaparHTML(obtenerNombreCategoriaMovimiento(clave))} · Ver detalle</button>` : escaparHTML(obtenerNombreCategoriaMovimiento(clave))}</td>
                   <td>${formatoPesos(datos.ventas)}</td>
                   <td>${formatoPesos(datos.gastos)}</td>
                   <td>${formatoPesos(datos.ventas - datos.gastos)}</td>
@@ -1291,6 +1372,55 @@
         </table>
       `;
     }
+
+    function abrirModalDetalleOtros(titulo, registros, tipo) {
+      document.getElementById("tituloModalOtros").textContent = titulo;
+      const contenedor = document.getElementById("contenidoDetalleOtros");
+      if (!registros.length) {
+        contenedor.innerHTML = '<p class="sin-datos">No hay resultados para mostrar en este mes.</p>';
+      } else {
+        contenedor.innerHTML = registros.map(function(item) {
+          const fecha = escaparHTML(item.fecha || "Sin fecha");
+          const nombre = escaparHTML(item.nombre || item.descripcion || "Producto sin nombre");
+          const detalle = escaparHTML(item.detalle || "");
+          let cantidadOMonto = "";
+          if (tipo === "produccion") {
+            cantidadOMonto = `<strong>${escaparHTML(String(item.cantidad ?? 0))} ${escaparHTML(item.unidad || "")}</strong>`;
+          } else {
+            const tipoTexto = item.tipo === "venta" ? "Venta" : item.tipo === "gasto" ? "Gasto" : "Otro";
+            cantidadOMonto = `<strong>${tipoTexto}: ${formatoPesos(Number(item.monto) || 0)}</strong>`;
+          }
+          return `<div class="fila-otro-detalle"><div><p><strong>${nombre}</strong></p><p>Fecha: ${fecha}</p>${detalle ? `<p>${detalle}</p>` : ""}</div><div>${cantidadOMonto}</div></div>`;
+        }).join("");
+      }
+      document.getElementById("modalDetalleOtros").classList.remove("oculto");
+    }
+
+    function cerrarDetalleOtros() {
+      document.getElementById("modalDetalleOtros").classList.add("oculto");
+    }
+
+    function mostrarDetalleOtrosProduccion() {
+      asegurarMesInicial("mesResumenProduccion");
+      const mes = document.getElementById("mesResumenProduccion").value;
+      const registros = registrosDelMes(produccion, mes).filter(function(item) {
+        return obtenerCategoriaProduccion(item) === "otros";
+      }).sort(function(a, b) { return String(b.fecha || "").localeCompare(String(a.fecha || "")); });
+      abrirModalDetalleOtros("Productos registrados en Otros · Producción", registros, "produccion");
+    }
+
+    function mostrarDetalleOtrosMovimientos() {
+      asegurarMesInicial("mesResumenMovimientos");
+      const mes = document.getElementById("mesResumenMovimientos").value;
+      const registros = registrosDelMes(movimientos, mes).filter(function(item) {
+        return item.categoria === "otro" || item.tipo === "otros" || item.tipo === "otro";
+      }).sort(function(a, b) { return String(b.fecha || "").localeCompare(String(a.fecha || "")); });
+      abrirModalDetalleOtros("Detalle de movimientos · Otros", registros, "movimientos");
+    }
+
+    document.addEventListener("keydown", function(evento) {
+      if (evento.key === "Escape") cerrarDetalleOtros();
+    });
 
     function ordenarPorFecha(lista) {
       return [...lista].sort(function(a, b) {
